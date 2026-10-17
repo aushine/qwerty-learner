@@ -1,5 +1,6 @@
 import { db } from '@/utils/db'
 import type { IWordRecord } from '@/utils/db/record'
+import { isTypingDictId } from '@/resources/typingMaterials'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import type { Activity } from 'react-activity-calendar'
@@ -71,22 +72,35 @@ async function getChapterStats(startTimeStamp: number, endTimeStamp: number): Pr
       totalTime: number //总计用时
       wrongCount: number //错误次数
       wrongKeys: string[] //按错的按键
+      // 以下三项仅统计学习模式记录（DATA-17：打字模式的编码不是英文单词，
+      // 其 WPM / 正确率与学习模式不可比，故从折线图中剔除；热力图仍合并）
+      learnWords: string[]
+      learnTotalTime: number
+      learnWrongCount: number
     }
   } = {}
 
   const dates = getDatesBetween(startTimeStamp * 1000, endTimeStamp * 1000)
   data = dates
-    .map((date) => ({ [date]: { exerciseTime: 0, words: [], totalTime: 0, wrongCount: 0, wrongKeys: [] } }))
+    .map((date) => ({
+      [date]: { exerciseTime: 0, words: [], totalTime: 0, wrongCount: 0, wrongKeys: [], learnWords: [], learnTotalTime: 0, learnWrongCount: 0 },
+    }))
     .reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
   for (let i = 0; i < records.length; i++) {
     const date = dayjs(records[i].timeStamp * 1000).format('YYYY-MM-DD')
+    const isTyping = isTypingDictId(records[i].dict)
 
     data[date].exerciseTime = data[date].exerciseTime + 1
     data[date].words = [...data[date].words, records[i].word]
     data[date].totalTime = data[date].totalTime + records[i].timing.reduce((acc, curr) => acc + curr, 0)
     data[date].wrongCount = data[date].wrongCount + records[i].wrongCount
     data[date].wrongKeys = [...(data[date].wrongKeys || []), ...(Object.values(records[i].mistakes).flat() || [])]
+    if (!isTyping) {
+      data[date].learnWords = [...data[date].learnWords, records[i].word]
+      data[date].learnTotalTime = data[date].learnTotalTime + records[i].timing.reduce((acc, curr) => acc + curr, 0)
+      data[date].learnWrongCount = data[date].learnWrongCount + records[i].wrongCount
+    }
   }
 
   const RecordArray = Object.entries(data)
@@ -103,15 +117,15 @@ async function getChapterStats(startTimeStamp: number, endTimeStamp: number): Pr
     count: Array.from(new Set(words)).length,
     level: getLevel(Array.from(new Set(words)).length),
   }))
-  // wpm=练习词数（不去重）/总时间
-  const wpmRecord: IWordStats['wpmRecord'] = RecordArray.map<[string, number]>(([date, { words, totalTime }]) => [
+  // wpm=学习模式练习词数（不去重）/总时间（DATA-17：剔除打字模式记录）
+  const wpmRecord: IWordStats['wpmRecord'] = RecordArray.map<[string, number]>(([date, { learnWords, learnTotalTime }]) => [
     date,
-    Math.round(words.length / (totalTime / 1000 / 60)),
+    Math.round(learnWords.length / (learnTotalTime / 1000 / 60)),
   ]).filter((d) => d[1])
-  // 正确率=每个单词的长度合计/(每个单词的长度合计+总错误次数)
-  const accuracyRecord: IWordStats['accuracyRecord'] = RecordArray.map<[string, number]>(([date, { words, wrongCount }]) => [
+  // 正确率=每个单词的长度合计/(每个单词的长度合计+总错误次数)（DATA-17：剔除打字模式记录）
+  const accuracyRecord: IWordStats['accuracyRecord'] = RecordArray.map<[string, number]>(([date, { learnWords, learnWrongCount }]) => [
     date,
-    Math.round((words.join('').length / (words.join('').length + wrongCount)) * 100),
+    Math.round((learnWords.join('').length / (learnWords.join('').length + learnWrongCount)) * 100),
   ]).filter((d) => d[1])
   // 错误次数统计
   const wrongTimeRecord: IWordStats['wrongTimeRecord'] = []

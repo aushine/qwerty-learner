@@ -1,0 +1,41 @@
+# English Paragraphs (20 段，每段 80-150 词；本项目自撰原创内容，无版权风险)
+# 一段一块，块间空行；英语素材 name = 段落原文，逐字符对码练习
+Learning to type well is mostly about habits rather than talent. The fingers learn a pattern through repetition, and the pattern becomes automatic after enough practice. Most beginners watch the keyboard, but the goal is to look at the screen and let the hands find the keys on their own. Start slowly, keep the accuracy high, and the speed will follow naturally over time.
+
+A good desk setup matters more than people think. The monitor should sit at eye level, about an arm's length away. The chair needs to support the lower back, and the feet should rest flat on the floor. The wrists stay straight while typing, and the elbows bend at roughly a right angle. Small adjustments to posture can prevent hours of discomfort during a long working day.
+
+Every programmer eventually learns that reading code is a bigger part of the job than writing it. Code is read far more often than it is written, so clarity beats cleverness. A simple function with a clear name and an honest comment saves the next person, who is often the author six months later, a great deal of confusion and guesswork.
+
+Breaks are not a reward for finishing work; they are part of the work. The brain consolidates what it has learned during short pauses, and the eyes need distance after staring at a screen. A five minute walk every hour improves both focus and mood. Sitting still for hours feels productive, but the mind slows down long before the body complains about it.
+
+Habits grow from small, repeatable actions. Brushing teeth takes two minutes, but doing it every day keeps the teeth healthy for decades. The same logic applies to skills: fifteen minutes of daily practice beats a long session once a week. Consistency turns effort into routine, and routine turns into something that no longer requires willpower.
+
+A beginner learning a new language should listen more than they speak at first. The ear needs time to adjust to unfamiliar sounds before the mouth can reproduce them. Watching shows with subtitles, repeating short phrases, and reading simple texts build the foundation. Speaking too early often leads to frustration, because the brain cannot yet hear what it is trying to say.
+
+Cooking at home is cheaper and often healthier than ordering takeout. A simple meal of rice, vegetables, and eggs costs little and takes twenty minutes. The skill improves quickly with practice: chopping becomes faster, seasoning becomes instinctive, and cleanup becomes part of the flow. Home cooking also gives full control over salt, oil, and portion size.
+
+The internet has made information abundant, but attention scarce. Notifications, feeds, and messages compete for every spare moment. Protecting attention has become a modern skill: closing tabs, silencing the phone, and setting clear boundaries around deep work. The ability to focus for a long stretch is now rare, and therefore valuable.
+
+Exercise does not have to mean a gym membership. Walking, climbing stairs, and stretching all count. The recommended minimum is modest, and the benefits, both physical and mental, are well documented. The hardest part is usually the first week; after that, the body starts to expect the movement and asks for it when the routine is broken.
+
+A password manager solves a problem that gets worse every year. People cannot remember dozens of unique passwords, so they reuse the same one everywhere, which turns a single leak into a disaster. A manager stores everything behind one strong passphrase and generates random strings for each account. Setting it up takes an afternoon and pays back for years.
+
+Public domain books are a gift that keeps on giving. Classic novels, old essays, and historical documents can be read, copied, and adapted freely. Project Gutenberg and similar archives have digitized tens of thousands of works. Reading them costs nothing, works offline, and connects the reader to ideas that shaped the modern world, one page at a time.
+
+Writing every day, even briefly, trains the mind to think clearly. A few lines about what happened, what was learned, or what remains unclear force the vague into shape. Thoughts that feel complete in the head often fall apart on the page, and that failure is useful. The page is honest: it shows exactly what is understood and what is not.
+
+Sleep is the cheapest performance enhancer available. Seven to nine hours improve memory, mood, reaction time, and immune function. Screens before bed delay sleep because the light suppresses melatonin, and the content keeps the brain alert. A regular schedule matters more than total hours: going to bed and waking up at the same time anchors the whole day.
+
+Version control is a time machine for software. Every change is recorded with a message, and any past state can be restored. Mistakes stop being frightening, because there is always a safe version to return to. The discipline of small, meaningful commits makes the history readable, which helps the whole team understand not only what changed, but why it changed.
+
+Water is the most overlooked tool for concentration. Mild dehydration causes headaches and tiredness that people often blame on stress or boredom. A glass of water in the morning, a bottle on the desk, and a refill every couple of hours keep the body running smoothly. It is a small habit with an outsized effect on how the day feels.
+
+Nature does not need to be distant to help. A park, a tree-lined street, or a small garden reduces stress and restores attention. Studies show that even short exposure to green spaces lowers blood pressure and improves mood. City dwellers without easy access to forests can still benefit from a walk under any trees that happen to be nearby.
+
+A clean desktop, both physical and digital, reduces friction. Files with clear names, folders with a purpose, and a tidy workspace make it easier to find things and easier to start. Clutter competes for attention quietly. Ten minutes of tidying at the end of the day returns that attention tomorrow morning, with interest.
+
+Feedback works best when it is specific and timely. Vague praise teaches nothing, and vague criticism teaches less. The useful version names the exact behavior, explains the effect, and suggests the next step. Giving feedback well is a skill that improves every relationship at work, from teammates to managers, and it starts with observation rather than judgment.
+
+Learning a musical instrument as an adult is slower than it would have been as a child, but far from impossible. The adult advantage is understanding: scales make sense, practice can be structured, and progress can be measured. Ten focused minutes a day, with attention to accuracy, builds real skill within months, and the first complete song is a memory that lasts for years.
+
+Asking good questions is half of problem solving. A vague question gets a vague answer, while a precise one often reveals the solution halfway through being asked. Writing the question down, including what was tried and what happened, clarifies the thinking. Many problems dissolve during the formulation, before anyone else even needs to answer.

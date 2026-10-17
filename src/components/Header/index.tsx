@@ -1,3 +1,4 @@
+import ModeSwitcher from '@/components/ModeSwitcher'
 import logo from '@/assets/logo.svg'
 import type { PropsWithChildren } from 'react'
 import type React from 'react'
@@ -12,7 +13,11 @@ const Header: React.FC<PropsWithChildren> = ({ children }) => {
           to="https://qwerty.kaiyi.cool/"
         >
           <img src={logo} className="mr-3 h-16 w-16" alt="Qwerty Learner Logo" />
-          <h1>Qwerty Learner</h1>
+          {/* 模式切换箭头：标题文字正下方居中，绝对定位由 py-6 内边距吸收，不增加页头高度（01 ENTRY-01/03） */}
+          <div className="relative flex flex-col items-center">
+            <h1>Qwerty Learner</h1>
+            <ModeSwitcher />
+          </div>
         </NavLink>
         <nav className="my-card on element flex w-auto content-center items-center justify-end space-x-3 rounded-xl bg-white p-4 transition-colors duration-300 dark:bg-gray-800">
           {children}

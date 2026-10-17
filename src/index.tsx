@@ -17,6 +17,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 const AnalysisPage = lazy(() => import('./pages/Analysis'))
 const GalleryPage = lazy(() => import('./pages/Gallery-N'))
+const TypingLearnerPage = lazy(() => import('./pages/TypingLearner'))
+const TypingGalleryPage = lazy(() => import('./pages/TypingLearner/Gallery'))
 
 if (process.env.NODE_ENV === 'production') {
   // for prod
@@ -61,6 +63,9 @@ function Root() {
                 <Route path="/analysis" element={<AnalysisPage />} />
                 <Route path="/error-book" element={<ErrorBook />} />
                 <Route path="/friend-links" element={<FriendLinks />} />
+                {/* 打字模式（新增，MODE-02）：相对 path，不硬编码 basename */}
+                <Route path="/typing" element={<TypingLearnerPage />} />
+                <Route path="/typing/gallery" element={<TypingGalleryPage />} />
                 <Route path="/*" element={<Navigate to="/" />} />
               </>
             )}

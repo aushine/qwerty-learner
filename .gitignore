@@ -34,3 +34,7 @@ stats.html
 /blob-report/
 /playwright/.cache/
 playwright-report
+
+# WorkBuddy project memory
+.workbuddy/
+.workBuddy/

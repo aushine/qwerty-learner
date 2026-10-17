@@ -27,6 +27,17 @@ module.exports = {
       plugins: ['@typescript-eslint'],
     },
     {
+      files: ['scripts/*.ts'],
+      env: { node: true },
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      plugins: ['@typescript-eslint'],
+    },
+    {
       files: ['src/**/*.ts', 'src/**/*.tsx', 'test/**/*.ts', 'test/**/*.tsx'],
       env: { browser: true },
       extends: [

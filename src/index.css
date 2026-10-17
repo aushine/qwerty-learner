@@ -154,6 +154,20 @@ body,
   animation: gradient-text-hue 5s linear infinite;
 }
 
+/* 打字模式键盘：按错抖动（04 §8，允许的最小追加） */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
 @keyframes gradient-text-hue {
   from {
     filter: hue-rotate(0);

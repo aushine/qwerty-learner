@@ -13,29 +13,56 @@ export type UseWordListResult = {
 }
 
 /**
+ * 参数化选项（05 DATA-09 方案 A）。
+ * 传入时走「打字模式」路径：url / chapter / chapterLength 全部由调用方提供，
+ * 不读也不写学习模式的 currentDictInfo / currentChapter / review 状态（GAL-13）。
+ * 不传时行为与改造前完全一致（零回归）。
+ */
+export type UseWordListOptions = {
+  /** 词典/素材 JSON 路径 */
+  url?: string
+  /** 章节 index */
+  chapter?: number
+  /** 每章条目数（学习模式恒为 CHAPTER_LENGTH=20；打字模式按素材 chapterSize） */
+  chapterLength?: number
+}
+
+/**
  * Use word lists from the current selected dictionary.
  */
-export function useWordList(): UseWordListResult {
+export function useWordList(options?: UseWordListOptions): UseWordListResult {
   const currentDictInfo = useAtomValue(currentDictInfoAtom)
   const [currentChapter, setCurrentChapter] = useAtom(currentChapterAtom)
   const { isReviewMode, reviewRecord } = useAtomValue(reviewModeInfoAtom)
 
+  const isLearnMode = options === undefined
+  const url = options?.url ?? currentDictInfo.url
+  const chapter = options?.chapter ?? currentChapter
+  const chapterLength = options?.chapterLength ?? CHAPTER_LENGTH
+
   // Reset current chapter to 0, when currentChapter is greater than chapterCount.
-  if (currentChapter >= currentDictInfo.chapterCount) {
+  // （仅学习模式：打字模式的章节越界由页面自行处理，不写学习模式 atom）
+  if (isLearnMode && currentChapter >= currentDictInfo.chapterCount) {
     setCurrentChapter(0)
   }
 
-  const isFirstChapter = !isReviewMode && currentDictInfo.id === 'cet4' && currentChapter === 0
-  const { data: wordList, error, isLoading } = useSWR(currentDictInfo.url, wordListFetcher)
+  const isFirstChapter = isLearnMode && !isReviewMode && currentDictInfo.id === 'cet4' && currentChapter === 0
+  const { data: wordList, error, isLoading } = useSWR(url, wordListFetcher)
 
   const words: WordWithIndex[] = useMemo(() => {
     let newWords: Word[]
-    if (isFirstChapter) {
-      newWords = firstChapter
-    } else if (isReviewMode) {
-      newWords = reviewRecord?.words ?? []
+    if (isLearnMode) {
+      if (isFirstChapter) {
+        newWords = firstChapter
+      } else if (isReviewMode) {
+        newWords = reviewRecord?.words ?? []
+      } else if (wordList) {
+        newWords = wordList.slice(currentChapter * CHAPTER_LENGTH, (currentChapter + 1) * CHAPTER_LENGTH)
+      } else {
+        newWords = []
+      }
     } else if (wordList) {
-      newWords = wordList.slice(currentChapter * CHAPTER_LENGTH, (currentChapter + 1) * CHAPTER_LENGTH)
+      newWords = wordList.slice(chapter * chapterLength, (chapter + 1) * chapterLength)
     } else {
       newWords = []
     }
@@ -56,7 +83,7 @@ export function useWordList(): UseWordListResult {
         trans,
       }
     })
-  }, [isFirstChapter, isReviewMode, wordList, reviewRecord?.words, currentChapter])
+  }, [isLearnMode, isFirstChapter, isReviewMode, wordList, reviewRecord?.words, currentChapter, chapter, chapterLength])
 
   return { words, isLoading, error }
 }
