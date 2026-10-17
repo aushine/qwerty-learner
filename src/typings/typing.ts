@@ -24,6 +24,23 @@ export type TypingSchemeIdAll = 'quanpin' | 'flypy' | 'mspy' | 'zrm' | 'sogou'
 export type TypingMaterialType = 'zi' | 'ci' | 'chengyu' | 'duanju' | 'wenzhang' | 'paragraph' | 'article'
 
 /**
+ * 逐字对齐单元（打字模式题面「拼音行 / 汉字行」一一对应的数据来源）。
+ *
+ * 一个 unit 对应 `notation` 中的**一个字符**（汉字或标点），因此
+ * `notation` 逐字符切分后的数组长度与 `units.length` 严格相等，
+ * 前端可按 index 直接配对渲染。
+ *
+ * - 汉字：`code` 为它对应的编码片段（全拼=拼音字母，双拼=1~2 键），可被打字推进
+ * - 标点/空白/换行：`code` 为 `''`，显示但不参与输入（用户拍板「标点可省略不打」）
+ */
+export type TypingUnit = {
+  /** 与 notation 同位置的原始字符 */
+  char: string
+  /** 该字符对应的编码片段；非汉字为 '' */
+  code: string
+}
+
+/**
  * 词条 JSON 形状（05 §2.2）：沿用现有 `Word` 结构，但语义整体替换。
  * 构建产物见 `public/dicts/zh/*.json` 与 `public/dicts/en/*.json`。
  */
@@ -38,6 +55,11 @@ export type TypingWord = {
   notation: string
   /** 兼容编码集合，`acceptedCodes[0]` 为主口径；仅在零声母双字母与 jqxy+ü 原式等场景出现 */
   acceptedCodes?: string[]
+  /**
+   * 逐字对齐信息（中文素材才有；英语素材不输出）。
+   * `units.length === notation.length`，用于「拼音行 / 汉字行」交替渲染与逐字进度。
+   */
+  units?: TypingUnit[]
 }
 
 /** 素材注册表条目（05 DATA-05） */

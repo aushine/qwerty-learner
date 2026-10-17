@@ -39,17 +39,15 @@ import { useSaveWordRecord } from '../../hooks/useTypingRecords'
 function layoutFor(materialType: TypingMaterialResource['materialType']): { charsPerLine: number; codeFontSize: number; hanziHintMax: number; windowLines: number } {
   switch (materialType) {
     case 'wenzhang':
-      // 文章：28px / 32 键每行；汉字提示最多 1 行；窗口 3 行
-      // （LAY-05 原文上限 6 行，但 6 行题面 + 键盘 + 指标条超出 h-screen 预算，
-      //  按 §3.2「LAY-06 是本批次最需要注意的布局约束」取 3 行，超出由进度条承载）
-      return { charsPerLine: 32, codeFontSize: 28, hanziHintMax: 35, windowLines: 3 }
+      // 文章：拼音/汉字交替渲染，每组占 2 视觉行。
+      // 字号下调以容纳「拼音行 + 汉字行」×3 组，保证单屏不滚动（LAY-06 优先）。
+      return { charsPerLine: 30, codeFontSize: 22, hanziHintMax: 35, windowLines: 6 }
     case 'duanju':
-      // 短句：24 键每行（LAY-05）；多行时字号随 LAY-05 文章档降至 32px，
-      // 保证 24 字符在 max-w-[640px] 内不折行、且 3 行题面仍在单屏预算内
-      return { charsPerLine: 24, codeFontSize: 32, hanziHintMax: 0, windowLines: 6 }
+      // 短句：26px / 24 键每行；交替布局下 6 视觉行 = 3 组
+      return { charsPerLine: 24, codeFontSize: 26, hanziHintMax: 0, windowLines: 6 }
     case 'article':
     case 'paragraph':
-      // 英语长文：24px / 约 48 键每行；窗口 4 行（LAY-05 的行数表仅覆盖中文，英语按同原则取 4 行）
+      // 英语长文：无汉字行，仍是「一行编码」布局，按原口径 24px / 48 键、4 行
       return { charsPerLine: 48, codeFontSize: 24, hanziHintMax: 0, windowLines: 4 }
     default:
       // 单字 / 词 / 成语：一行
@@ -286,6 +284,9 @@ export default function TypingPanel({
     return notation
   }, [currentWord?.notation, layout.hanziHintMax])
 
+  /** 逐字对齐单元（中文素材才有；英语素材不输出，走旧渲染） */
+  const units = (currentWord as { units?: { char: string; code: string }[] } | undefined)?.units
+
   return (
     <div className="container flex h-full w-full flex-col items-center justify-center">
       {/* 目录预览带：KEEP-09 默认关闭，置空但保留 12px 高度维持垂直节奏（LAY-02 不保留分支） */}
@@ -321,6 +322,7 @@ export default function TypingPanel({
                 charsPerLine={layout.charsPerLine}
                 codeFontSize={layout.codeFontSize}
                 windowLines={layout.windowLines}
+                units={units}
               />
               {/* 键盘（KB-06：与题面 mt-6；全拼/英语也渲染，仅无标注，KB-10） */}
               <div className="mt-6 w-full">

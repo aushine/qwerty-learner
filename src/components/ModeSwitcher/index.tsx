@@ -120,7 +120,7 @@ export default function ModeSwitcher() {
       // ENTRY-07：菜单项间用 ↑/↓ 移动焦点（schedule 1.6）
       e.preventDefault()
       const dir = e.key === 'ArrowDown' ? 1 : -1
-      const idx = MODES.findIndex((m) => m.id === mode.id)
+      const idx = MODES.findIndex((m) => m.id === mode)
       const next = (idx + dir + MODES.length) % MODES.length
       setFocusIndex(next)
       panelRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')[next]?.focus()

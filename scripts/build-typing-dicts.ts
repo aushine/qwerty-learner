@@ -21,7 +21,9 @@ const ROOT = path.resolve(__dirname, '..')
 const CORPUS_DIR = path.join(ROOT, 'src/corpus')
 const OUT_DIR = path.join(ROOT, 'public/dicts')
 
-/** 与 src/typings/index.ts 的 Word 兼容；acceptedCodes 为本批次新增字段（打字模式专用） */
+/** 与 src/typings/index.ts 的 Word 兼容；acceptedCodes / units 为本批次新增字段（打字模式专用） */
+type TypingUnit = { char: string; code: string }
+
 type DictEntry = {
   name: string
   trans: string[]
@@ -29,6 +31,7 @@ type DictEntry = {
   ukphone: string
   notation: string
   acceptedCodes?: string[]
+  units?: TypingUnit[]
 }
 
 type Scheme = 'quanpin' | 'flypy'
@@ -294,7 +297,7 @@ function encodeSyllables(scheme: Scheme, syllables: string[]): { mains: string[]
   return { mains, alts }
 }
 
-function makeEntry(hanzi: string, code: string, accepted: string[]): DictEntry {
+function makeEntry(hanzi: string, code: string, accepted: string[], units?: TypingUnit[]): DictEntry {
   const entry: DictEntry = {
     name: code,
     trans: [hanzi],
@@ -303,15 +306,39 @@ function makeEntry(hanzi: string, code: string, accepted: string[]): DictEntry {
     notation: hanzi,
   }
   if (accepted.length > 1) entry.acceptedCodes = accepted
+  if (units && units.length > 0) entry.units = units
   return entry
+}
+
+/**
+ * 生成逐字对齐单元：`units.length === [...notation].length`。
+ *
+ * 规则（用户拍板「标点显示但不打」）：
+ * - 汉字 → 消耗一个主编码片段（来自 mains 队列），记为它的 code
+ * - 非汉字（标点 / 空白 / 换行）→ code = ''，仅用于显示占位
+ *
+ * 🔴 `mains` 必须是按汉字顺序排列的每字主编码；长度须与 notation 中汉字数相等，
+ * 否则抛错（宁可构建失败，也不产出错位数据）。
+ */
+function buildUnits(notation: string, mains: string[]): TypingUnit[] {
+  const chars = [...notation]
+  const hanziCount = chars.filter(isCjk).length
+  if (hanziCount !== mains.length) {
+    throw new Error(`对齐失败：汉字数 ${hanziCount} ≠ 编码片段数 ${mains.length}：「${notation.slice(0, 24)}…」`)
+  }
+  let cursor = 0
+  return chars.map((char) => ({
+    char,
+    code: isCjk(char) ? mains[cursor++] : '',
+  }))
 }
 
 type BuildResult = { entries: DictEntry[]; excluded: string[] }
 
-/** 汉字串（可能含标点）→ 编码条目 */
-function encodeHanziText(scheme: Scheme, hanzi: string, syllables: string[]): { code: string; accepted: string[] } {
+/** 汉字串（可能含标点）→ 编码条目（附带每字主编码，供构建 units） */
+function encodeHanziText(scheme: Scheme, hanzi: string, syllables: string[]): { code: string; accepted: string[]; mains: string[] } {
   const { mains, alts } = encodeSyllables(scheme, syllables)
-  return { code: mains.join(''), accepted: buildAccepted(mains, alts) }
+  return { code: mains.join(''), accepted: buildAccepted(mains, alts), mains }
 }
 
 function buildMaterial(def: MaterialDef): BuildResult {
@@ -320,8 +347,8 @@ function buildMaterial(def: MaterialDef): BuildResult {
       const chars = readLines(def.corpus)
       const entries = chars.map((ch) => {
         const py = pinyin(ch, { toneType: 'none' })
-        const { code, accepted } = encodeHanziText(def.scheme as Scheme, ch, [normalizePinyin(py)])
-        return makeEntry(ch, code, accepted)
+        const { code, accepted, mains } = encodeHanziText(def.scheme as Scheme, ch, [normalizePinyin(py)])
+        return makeEntry(ch, code, accepted, buildUnits(ch, mains))
       })
       return { entries, excluded: [] }
     }
@@ -330,8 +357,8 @@ function buildMaterial(def: MaterialDef): BuildResult {
       const words = readLines(def.corpus)
       const entries = words.map((w) => {
         const syllables = wordPinyin(w)
-        const { code, accepted } = encodeHanziText(def.scheme as Scheme, w, syllables)
-        return makeEntry(w, code, accepted)
+        const { code, accepted, mains } = encodeHanziText(def.scheme as Scheme, w, syllables)
+        return makeEntry(w, code, accepted, buildUnits(w, mains))
       })
       return { entries, excluded: [] }
     }
@@ -339,8 +366,8 @@ function buildMaterial(def: MaterialDef): BuildResult {
       const sentences = readLines(def.corpus)
       const entries = sentences.map((s) => {
         const syllables = sentencePinyin(s)
-        const { code, accepted } = encodeHanziText(def.scheme as Scheme, s, syllables)
-        return makeEntry(s, code, accepted)
+        const { code, accepted, mains } = encodeHanziText(def.scheme as Scheme, s, syllables)
+        return makeEntry(s, code, accepted, buildUnits(s, mains))
       })
       return { entries, excluded: [] }
     }
@@ -350,8 +377,8 @@ function buildMaterial(def: MaterialDef): BuildResult {
         // 篇名 + 作者 + 正文 一起作为展示文本；编码只取汉字部分
         const display = (piece.author ? `${piece.title} ${piece.author}\n` : `${piece.title}\n`) + piece.body
         const syllables = sentencePinyin(display)
-        const { code, accepted } = encodeHanziText(def.scheme as Scheme, display, syllables)
-        return makeEntry(display, code, accepted)
+        const { code, accepted, mains } = encodeHanziText(def.scheme as Scheme, display, syllables)
+        return makeEntry(display, code, accepted, buildUnits(display, mains))
       })
       return { entries, excluded: [] }
     }
