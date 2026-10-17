@@ -31,16 +31,17 @@ export default function TypingSchemeSwitcher({
   const [focusIndex, setFocusIndex] = useState(0)
   const listRef = useRef<HTMLDivElement | null>(null)
 
-  const { refs, context } = useFloating({
+  const { refs, context, x, y } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     whileElementsMounted: autoUpdate,
     middleware: [offset(6), flip(), shift()],
     placement: 'bottom-start',
   })
-  const hover = useHover(context, { move: false, delay: { open: 80, close: 200 } })
+  const hover = useHover(context, { delay: { open: 80, close: 200 } })
   const click = useClick(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click])
+  const floatingProps = getFloatingProps()
 
   // 打开时聚焦当前方案项
   useEffect(() => {
@@ -111,7 +112,14 @@ export default function TypingSchemeSwitcher({
             refs.setFloating(node)
             listRef.current = node
           }}
-          {...getFloatingProps()}
+          {...floatingProps}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            transform: `translate(${Math.round(x ?? 0)}px, ${Math.round(y ?? 0)}px)`,
+            ...((floatingProps.style as React.CSSProperties) || {}),
+          }}
           role="listbox"
           aria-label="双拼方案"
           className="listbox-options z-30 w-56"

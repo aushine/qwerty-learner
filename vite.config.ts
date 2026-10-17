@@ -33,6 +33,15 @@ export default defineConfig(async ({ mode }) => {
       outDir: 'build',
       sourcemap: false,
     },
+    // 监听所有网卡（0.0.0.0 / ::），便于通过局域网 IP 访问开发服务器，
+    // 例如 http://10.66.66.11:5173。默认仅监听 localhost 会导致局域网内打不开。
+    server: {
+      host: true,
+      port: 5173,
+    },
+    preview: {
+      host: true,
+    },
     esbuild: {
       drop: mode === 'development' ? [] : ['console', 'debugger'],
     },
