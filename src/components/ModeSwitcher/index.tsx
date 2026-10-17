@@ -39,14 +39,14 @@ export default function ModeSwitcher() {
   const arrowRef = useRef<HTMLButtonElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
 
-  const { refs, context } = useFloating({
+  const { refs, context, x, y } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     whileElementsMounted: autoUpdate,
     middleware: [offset(5), flip(), shift()],
     placement: 'bottom-start',
   })
-  const hover = useHover(context, { move: false, delay: { open: 80, close: 200 } })
+  const hover = useHover(context, { delay: { open: 80, close: 200 } })
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
   const commit = useCallback(
@@ -151,6 +151,7 @@ export default function ModeSwitcher() {
   }
 
   const referenceProps = getReferenceProps()
+  const floatingProps = getFloatingProps()
 
   return (
     <>
@@ -191,7 +192,14 @@ export default function ModeSwitcher() {
             panelRef.current = node
             refs.setFloating(node)
           }}
-          {...getFloatingProps()}
+          {...floatingProps}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            transform: `translate(${Math.round(x ?? 0)}px, ${Math.round(y ?? 0)}px)`,
+            ...((floatingProps.style as React.CSSProperties) || {}),
+          }}
           role="menu"
           aria-label="模式切换"
           className="my-card z-30 w-56 rounded-xl bg-white p-1 dark:bg-gray-800"
