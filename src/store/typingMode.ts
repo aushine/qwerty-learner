@@ -13,7 +13,7 @@
  *   typingPracticeActiveAtom / pendingModeSwitchAtom / typingPausedBySwitcherAtom
  */
 
-import type { AppMode, TypingLanguageTab, TypingSchemeId } from '@/typings/typing'
+import type { AppMode, TypingInputTrack, TypingLanguageTab, TypingSchemeId } from '@/typings/typing'
 import { atom } from 'jotai'
 
 const warnedKeys = new Set<string>()
@@ -64,6 +64,7 @@ function persistedAtom<T>(key: string, fallback: T, isValid: (v: unknown) => v i
 const isAppMode = (v: unknown): v is AppMode => v === 'learn' || v === 'typing'
 const isLanguageTab = (v: unknown): v is TypingLanguageTab => v === 'zh' || v === 'en'
 const isScheme = (v: unknown): v is TypingSchemeId => v === 'quanpin' || v === 'flypy'
+const isInputTrack = (v: unknown): v is TypingInputTrack => v === 'code' || v === 'ime'
 const isNonEmptyString = (v: unknown): v is string => typeof v === 'string' && v.length > 0
 const isChapterIndex = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0
 
@@ -75,6 +76,13 @@ export const typingLanguageTabAtom = persistedAtom<TypingLanguageTab>('typingLan
 
 /** 输入方式（GAL-08：外部写入非法值时回落 quanpin） */
 export const typingSchemeAtom = persistedAtom<TypingSchemeId>('typingScheme', 'quanpin', isScheme)
+
+/**
+ * 输入轨（spec-20261017-v2 / 02 SPEED2-01）：
+ * `code` = 全拼/双拼对码轨；`ime` = 打字测速（上屏轨）。
+ * 与 scheme 正交：切到 ime 时不重置 scheme，切回来仍是上次的双拼。
+ */
+export const typingInputTrackAtom = persistedAtom<TypingInputTrack>('typingInputTrack', 'code', isInputTrack)
 
 /** 当前素材 id（ACC-03-14：非法值回落 zh-quanpin-zi-500） */
 export const typingMaterialIdAtom = persistedAtom<string>(

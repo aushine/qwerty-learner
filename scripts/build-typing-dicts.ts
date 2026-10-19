@@ -32,10 +32,14 @@ type DictEntry = {
   notation: string
   acceptedCodes?: string[]
   units?: TypingUnit[]
+  /** 🆕 v2 文章元数据（DATA2-01） */
+  title?: string
+  author?: string
+  difficulty?: 'intro' | 'mid' | 'adv'
 }
 
 type Scheme = 'quanpin' | 'flypy'
-type MaterialKind = 'zi' | 'ci' | 'chengyu' | 'duanju' | 'wenzhang' | 'en-para' | 'en-essay'
+type MaterialKind = 'zi' | 'ci' | 'chengyu' | 'duanju' | 'wenzhang' | 'en-para' | 'en-essay' | 'en-classic'
 
 type MaterialDef = {
   /** 素材 id（zh-<scheme>-<type>[-<variant>] / en-<type>[-<variant>]） */
@@ -70,9 +74,14 @@ const MATERIALS: MaterialDef[] = [
   { id: 'zh-wenzhang-shi', corpus: 'zh/wenzhang-shi.txt', kind: 'wenzhang', scheme: 'flypy', out: 'zh/flypy-wenzhang-shi.json' },
   { id: 'zh-wenzhang-10', corpus: 'zh/wenzhang-baihua.txt', kind: 'wenzhang', scheme: 'quanpin', out: 'zh/quanpin-wenzhang-10.json' },
   { id: 'zh-wenzhang-10', corpus: 'zh/wenzhang-baihua.txt', kind: 'wenzhang', scheme: 'flypy', out: 'zh/flypy-wenzhang-10.json' },
+  // 🆕 v2：入门档短文（GAL2-10 / MAT2-03）
+  { id: 'zh-wenzhang-qingsong', corpus: 'zh/wenzhang-qingsong.txt', kind: 'wenzhang', scheme: 'quanpin', out: 'zh/quanpin-wenzhang-qingsong.json' },
+  { id: 'zh-wenzhang-qingsong', corpus: 'zh/wenzhang-qingsong.txt', kind: 'wenzhang', scheme: 'flypy', out: 'zh/flypy-wenzhang-qingsong.json' },
   // ── 英语（2）──
   { id: 'en-article-para', corpus: 'en/para.txt', kind: 'en-para', scheme: 'en', out: 'en/para.json' },
   { id: 'en-article-essay', corpus: 'en/essay.txt', kind: 'en-essay', scheme: 'en', out: 'en/essay.json' },
+  // 🆕 v2：公版英文经典（MAT2-04）
+  { id: 'en-article-classic', corpus: 'en/classic.txt', kind: 'en-classic', scheme: 'en', out: 'en/classic.json' },
 ]
 
 /**
@@ -149,42 +158,73 @@ function readBlocks(file: string): string[] {
     }, [])
 }
 
-type WenzhangPiece = { title: string; author?: string; body: string }
+type Difficulty = 'intro' | 'mid' | 'adv'
+type WenzhangPiece = { title: string; author?: string; body: string; difficulty?: Difficulty }
 
-/** wenzhang 格式：`### 篇名` + 作者行（可省）+ 正文；空行分段 */
+const DIFFICULTY_SET = new Set<string>(['intro', 'mid', 'adv'])
+
+/** 解析 `@intro` / `@mid` / `@adv` 标记行（DATA2-04），返回难度或 undefined */
+function parseDiffMark(line: string): Difficulty | undefined {
+  if (!line.startsWith('@')) return undefined
+  const raw = line.slice(1).trim().toLowerCase()
+  return DIFFICULTY_SET.has(raw) ? (raw as Difficulty) : undefined
+}
+
+/** 难度自动推断兜底（DATA2-05）：按汉字数分档，文言/诗词由调用方强制 adv */
+function inferDifficulty(body: string): Difficulty {
+  const n = [...body].filter(isCjk).length
+  if (n <= 350) return 'intro'
+  if (n <= 900) return 'mid'
+  return 'adv'
+}
+
+/** 英文难度推断（DATA2-05 的英文版）：按词数分档 */
+function inferDifficultyEn(body: string): Difficulty {
+  const n = body.split(/\s+/).filter(Boolean).length
+  if (n <= 180) return 'intro'
+  if (n <= 420) return 'mid'
+  return 'adv'
+}
+
+/** wenzhang 格式：`### 篇名` + 作者行（可省）+ `@难度`（可省）+ 正文；空行分段 */
 function readWenzhang(file: string): WenzhangPiece[] {
   const lines = fs.readFileSync(path.join(CORPUS_DIR, file), 'utf8').split(/\r?\n/)
   const pieces: WenzhangPiece[] = []
   let current: WenzhangPiece | null = null
-  let authorPending = false
+  let headerOpen = false
   for (const raw of lines) {
     const line = raw.trim()
     if (line.startsWith('### ')) {
       current = { title: line.slice(4).trim(), body: '' }
       pieces.push(current)
-      authorPending = true
+      headerOpen = true
       continue
     }
     if (!current || !line || line.startsWith('#')) continue
-    if (authorPending) {
-      // 作者行：2-4 个纯汉字且不含标点
-      if (/^[\u4e00-\u9fff]{2,4}$/.test(line)) {
-        current.author = line
-        authorPending = false
+
+    // 头部区：作者行与难度标记可以任意顺序出现（DATA2-04）
+    if (headerOpen) {
+      const diff = parseDiffMark(line)
+      if (diff) {
+        current.difficulty = diff
         continue
       }
-      authorPending = false
+      if (!current.author && /^[\u4e00-\u9fff·]{2,6}$/.test(line)) {
+        current.author = line
+        continue
+      }
+      headerOpen = false
     }
     current.body += (current.body ? '\n' : '') + line
   }
   return pieces.filter((p) => p.body.length > 0)
 }
 
-/** 英文素材：`### 标题` + 正文段落 */
-function readEnglish(file: string): { title: string; body: string }[] {
+/** 英文素材：`### 标题` + `@难度`（可省）+ 正文段落 */
+function readEnglish(file: string): { title: string; body: string; difficulty?: Difficulty }[] {
   const lines = fs.readFileSync(path.join(CORPUS_DIR, file), 'utf8').split(/\r?\n/)
-  const items: { title: string; body: string }[] = []
-  let current: { title: string; body: string } | null = null
+  const items: { title: string; body: string; difficulty?: Difficulty }[] = []
+  let current: { title: string; body: string; difficulty?: Difficulty } | null = null
   for (const raw of lines) {
     const line = raw.trim()
     if (line.startsWith('### ')) {
@@ -193,6 +233,12 @@ function readEnglish(file: string): { title: string; body: string }[] {
       continue
     }
     if (!current || !line || line.startsWith('#')) continue
+    // 脚本内的 line 是 trim 后的原始行（含前导 @），parseDiffMark 依赖 `@` 前缀
+    const diff = parseDiffMark(raw.trim())
+    if (diff && !current.body) {
+      current.difficulty = diff
+      continue
+    }
     current.body += (current.body ? ' ' : '') + line
   }
   return items.filter((i) => i.body.length > 0)
@@ -378,20 +424,38 @@ function buildMaterial(def: MaterialDef): BuildResult {
         const display = (piece.author ? `${piece.title} ${piece.author}\n` : `${piece.title}\n`) + piece.body
         const syllables = sentencePinyin(display)
         const { code, accepted, mains } = encodeHanziText(def.scheme as Scheme, display, syllables)
-        return makeEntry(display, code, accepted, buildUnits(display, mains))
+        // DATA2-01：篇名/作者/难度（难度优先取显式标记，缺省按篇幅推断）
+        const difficulty = piece.difficulty ?? inferDifficulty(piece.body)
+        return { ...makeEntry(display, code, accepted, buildUnits(display, mains)), title: piece.title, author: piece.author, difficulty }
       })
       return { entries, excluded: [] }
     }
     case 'en-para': {
-      const paras = readBlocks(def.corpus)
-      const entries = paras.map((p) => makeEntry(p, p, [p]))
+      // 段落语料带 `### 标题` 与 `@难度`（v2 起）
+      const items = readEnglish(def.corpus)
+      if (items.length === 0) {
+        // 兼容老格式：无标题的纯段落
+        const paras = readBlocks(def.corpus)
+        const entries = paras.map((p) => makeEntry(p, p, [p]))
+        return { entries, excluded: [] }
+      }
+      const entries = items.map((item) => ({
+        ...makeEntry(item.body, item.body, [item.body]),
+        title: item.title,
+        difficulty: item.difficulty ?? inferDifficultyEn(item.body),
+      }))
       return { entries, excluded: [] }
     }
-    case 'en-essay': {
+    case 'en-essay':
+    case 'en-classic': {
       const items = readEnglish(def.corpus)
       const entries = items.map((item) => {
         const text = `${item.title}. ${item.body}`
-        return makeEntry(text, text, [text])
+        return {
+          ...makeEntry(text, text, [text]),
+          title: item.title,
+          difficulty: item.difficulty ?? inferDifficultyEn(item.body),
+        }
       })
       return { entries, excluded: [] }
     }

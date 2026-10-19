@@ -1,41 +1,102 @@
-# English Paragraphs (20 段，每段 80-150 词；本项目自撰原创内容，无版权风险)
-# 一段一块，块间空行；英语素材 name = 段落原文，逐字符对码练习
-Learning to type well is mostly about habits rather than talent. The fingers learn a pattern through repetition, and the pattern becomes automatic after enough practice. Most beginners watch the keyboard, but the goal is to look at the screen and let the hands find the keys on their own. Start slowly, keep the accuracy high, and the speed will follow naturally over time.
-
+# English Paragraphs (25 段，每段 60-150 词；前 19 段为本项目自撰原创，后 6 段亦为自撰)
+# 格式：`### 标题` + `@难度` + 正文；块间空行分隔
+# 英语素材 name = 段落原文，逐字符练习（上屏轨）
+### A Good Desk Setup
+@intro
 A good desk setup matters more than people think. The monitor should sit at eye level, about an arm's length away. The chair needs to support the lower back, and the feet should rest flat on the floor. The wrists stay straight while typing, and the elbows bend at roughly a right angle. Small adjustments to posture can prevent hours of discomfort during a long working day.
 
+### Reading Code
+@intro
 Every programmer eventually learns that reading code is a bigger part of the job than writing it. Code is read far more often than it is written, so clarity beats cleverness. A simple function with a clear name and an honest comment saves the next person, who is often the author six months later, a great deal of confusion and guesswork.
 
+### Take Real Breaks
+@intro
 Breaks are not a reward for finishing work; they are part of the work. The brain consolidates what it has learned during short pauses, and the eyes need distance after staring at a screen. A five minute walk every hour improves both focus and mood. Sitting still for hours feels productive, but the mind slows down long before the body complains about it.
 
+### Small Repeatable Actions
+@intro
 Habits grow from small, repeatable actions. Brushing teeth takes two minutes, but doing it every day keeps the teeth healthy for decades. The same logic applies to skills: fifteen minutes of daily practice beats a long session once a week. Consistency turns effort into routine, and routine turns into something that no longer requires willpower.
 
+### Listen First
+@intro
 A beginner learning a new language should listen more than they speak at first. The ear needs time to adjust to unfamiliar sounds before the mouth can reproduce them. Watching shows with subtitles, repeating short phrases, and reading simple texts build the foundation. Speaking too early often leads to frustration, because the brain cannot yet hear what it is trying to say.
 
+### Cook at Home
+@intro
 Cooking at home is cheaper and often healthier than ordering takeout. A simple meal of rice, vegetables, and eggs costs little and takes twenty minutes. The skill improves quickly with practice: chopping becomes faster, seasoning becomes instinctive, and cleanup becomes part of the flow. Home cooking also gives full control over salt, oil, and portion size.
 
+### Abundant Information
+@intro
 The internet has made information abundant, but attention scarce. Notifications, feeds, and messages compete for every spare moment. Protecting attention has become a modern skill: closing tabs, silencing the phone, and setting clear boundaries around deep work. The ability to focus for a long stretch is now rare, and therefore valuable.
 
+### Exercise Anywhere
+@intro
 Exercise does not have to mean a gym membership. Walking, climbing stairs, and stretching all count. The recommended minimum is modest, and the benefits, both physical and mental, are well documented. The hardest part is usually the first week; after that, the body starts to expect the movement and asks for it when the routine is broken.
 
+### Use a Password Manager
+@intro
 A password manager solves a problem that gets worse every year. People cannot remember dozens of unique passwords, so they reuse the same one everywhere, which turns a single leak into a disaster. A manager stores everything behind one strong passphrase and generates random strings for each account. Setting it up takes an afternoon and pays back for years.
 
+### Public Domain Books
+@intro
 Public domain books are a gift that keeps on giving. Classic novels, old essays, and historical documents can be read, copied, and adapted freely. Project Gutenberg and similar archives have digitized tens of thousands of works. Reading them costs nothing, works offline, and connects the reader to ideas that shaped the modern world, one page at a time.
 
+### Write Every Day
+@intro
 Writing every day, even briefly, trains the mind to think clearly. A few lines about what happened, what was learned, or what remains unclear force the vague into shape. Thoughts that feel complete in the head often fall apart on the page, and that failure is useful. The page is honest: it shows exactly what is understood and what is not.
 
+### Sleep First
+@intro
 Sleep is the cheapest performance enhancer available. Seven to nine hours improve memory, mood, reaction time, and immune function. Screens before bed delay sleep because the light suppresses melatonin, and the content keeps the brain alert. A regular schedule matters more than total hours: going to bed and waking up at the same time anchors the whole day.
 
+### Version Control
+@intro
 Version control is a time machine for software. Every change is recorded with a message, and any past state can be restored. Mistakes stop being frightening, because there is always a safe version to return to. The discipline of small, meaningful commits makes the history readable, which helps the whole team understand not only what changed, but why it changed.
 
+### Drink Water
+@intro
 Water is the most overlooked tool for concentration. Mild dehydration causes headaches and tiredness that people often blame on stress or boredom. A glass of water in the morning, a bottle on the desk, and a refill every couple of hours keep the body running smoothly. It is a small habit with an outsized effect on how the day feels.
 
+### Nature Nearby
+@intro
 Nature does not need to be distant to help. A park, a tree-lined street, or a small garden reduces stress and restores attention. Studies show that even short exposure to green spaces lowers blood pressure and improves mood. City dwellers without easy access to forests can still benefit from a walk under any trees that happen to be nearby.
 
+### A Clean Desktop
+@intro
 A clean desktop, both physical and digital, reduces friction. Files with clear names, folders with a purpose, and a tidy workspace make it easier to find things and easier to start. Clutter competes for attention quietly. Ten minutes of tidying at the end of the day returns that attention tomorrow morning, with interest.
 
+### Specific Feedback
+@intro
 Feedback works best when it is specific and timely. Vague praise teaches nothing, and vague criticism teaches less. The useful version names the exact behavior, explains the effect, and suggests the next step. Giving feedback well is a skill that improves every relationship at work, from teammates to managers, and it starts with observation rather than judgment.
 
+### Learning an Instrument
+@intro
 Learning a musical instrument as an adult is slower than it would have been as a child, but far from impossible. The adult advantage is understanding: scales make sense, practice can be structured, and progress can be measured. Ten focused minutes a day, with attention to accuracy, builds real skill within months, and the first complete song is a memory that lasts for years.
 
+### Ask Better Questions
+@intro
 Asking good questions is half of problem solving. A vague question gets a vague answer, while a precise one often reveals the solution halfway through being asked. Writing the question down, including what was tried and what happened, clarifies the thinking. Many problems dissolve during the formulation, before anyone else even needs to answer.
+
+### Slow Mornings
+@intro
+A morning that begins without a screen sets the tone for the whole day. Put the phone in another room, open a window, and let the light in. Boil water. Stand still for a minute and notice what the room sounds like. These small rituals cost nothing and slow the mind down enough to think. People who protect the first hour of the day often report that the rest of the day feels longer, not shorter, because they stop reacting and start choosing what deserves attention.
+
+### The Case for Paper Notes
+@intro
+Writing on paper is slower than typing, and that is the point. The hand moves at the speed of thought, so the ideas that survive the pen are usually the ones worth keeping. A notebook also has no notifications, no browser tabs, and no urge to check anything else. Many people find that a page of rough notes is worth more than a folder of neatly formatted documents, because the rough page shows how the thinking actually happened, including the parts that were later abandoned.
+
+### Mending Things
+@intro
+The habit of repairing what we own has almost disappeared from ordinary life. A loose button, a cracked handle, a worn sole: these used to be small tasks for an afternoon, now they are reasons to replace. Mending is not only cheaper, it also teaches patience with material things. A repaired object carries its history visibly, and its owner tends to treat it more carefully afterwards. Learning one simple repair, such as sewing a button, changes how you look at everything else in the room.
+
+### Quiet Places in a City
+@intro
+Every city contains quiet places that are not marked on any map. A courtyard behind a library, a stairwell that no one uses, a bench at the edge of a car park. Finding them requires walking without a destination, which is itself a rare pleasure. Once you know where your quiet places are, the city becomes larger rather than smaller, because you no longer depend on a single room to think in. The best ones are usually within ten minutes of a busy street.
+
+### Keeping a Simple Journal
+@intro
+A journal does not need to be profound. Three lines at the end of the day are enough: what happened, what you noticed, what you would do differently. The value is not in the prose but in the record. Over months, the entries reveal patterns that memory alone would smooth over. Reading a page from a year ago is often surprising, because the worries that seemed permanent have quietly disappeared, while the small pleasures that went unrecorded turn out to be the things you miss.
+
+### Learning to Wait
+@intro
+Waiting is a skill, and like most skills it improves with practice. A queue, a slow download, a delayed train: these moments used to be filled with impatience, and now they can be filled with nothing at all. Standing still without reaching for a phone is uncomfortable at first, then restful. The mind wanders, and the wandering is useful. Some of the best ideas arrive during the minutes we used to spend refreshing a screen. Waiting well is a small act of resistance against a culture of instant response.

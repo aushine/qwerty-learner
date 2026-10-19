@@ -22,6 +22,7 @@ import { findMaterial, resolveMaterialId, resolveMaterialUrl } from '@/resources
 import {
   pendingModeSwitchAtom,
   typingChapterAtom,
+  typingInputTrackAtom,
   typingMaterialIdAtom,
   typingPausedBySwitcherAtom,
   typingPracticeActiveAtom,
@@ -35,6 +36,7 @@ import TypingPanel from './components/TypingPanel'
 import TypingResultScreen from './components/TypingResultScreen'
 import TypingSpeed from './components/TypingSpeed'
 import TypingSwitcher from './components/TypingSwitcher'
+import UpstreamPanel from './components/UpstreamPanel'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
@@ -47,10 +49,21 @@ const TypingLearnerPage: React.FC = () => {
   const [loadError, setLoadError] = useState<Error | undefined>(undefined)
   // LAY-09：字/分派生值（已完成计量单位数：中文=汉字，英语=单词）
   const [unitsDone, setUnitsDone] = useState(0)
+  // SPEED2-07：上屏轨的「已提交字数」（用于指标条的「上屏字数」）
+  const [, setImeSubmitted] = useState(0)
+  // 非阻塞提示（SPEED2-11：标点格式错误等）
+  const [notice, setNotice] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (!notice) return
+    const timer = window.setTimeout(() => setNotice(undefined), 4000)
+    return () => window.clearTimeout(timer)
+  }, [notice])
 
   const materialId = useAtomValue(typingMaterialIdAtom)
   const setMaterialId = useSetAtom(typingMaterialIdAtom)
   const scheme = useAtomValue(typingSchemeAtom)
+  const inputTrack = useAtomValue(typingInputTrackAtom)
   const [chapter, setChapter] = useAtom(typingChapterAtom)
   const randomConfig = useAtomValue(randomConfigAtom)
   const isMobile = !IsDesktop()
@@ -65,6 +78,12 @@ const TypingLearnerPage: React.FC = () => {
   }, [effectiveMaterialId, materialId, setMaterialId])
 
   const material = findMaterial(effectiveMaterialId)
+  /** 上屏轨的题面文本来源：当前题（文章类 1 篇 = 1 题） */
+  const currentUrlWord = state.chapterData.words[state.chapterData.index] as
+    | { name: string; notation?: string }
+    | undefined
+  // 英语素材恒为上屏轨（SPEED2-10）；中文按用户选的轨
+  const effectiveTrack = material.languageTab === 'en' ? 'ime' : inputTrack
 
   // 章节越界重置（素材切换后章节号可能越界；只写打字模式 atom）
   useEffect(() => {
@@ -90,6 +109,7 @@ const TypingLearnerPage: React.FC = () => {
     const wasTyping = state.isTyping
     dispatch({ type: TypingStateActionType.SETUP_CHAPTER, payload: { words, shouldShuffle: randomConfig.isOpen } })
     setUnitsDone(0)
+    setImeSubmitted(0)
     if (wasTyping) {
       dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: true })
     }
@@ -167,6 +187,20 @@ const TypingLearnerPage: React.FC = () => {
     }
   }, [pendingMode, pausedBySwitcher, dispatch, setPausedBySwitcher])
 
+  /**
+   * 上屏轨完成一篇：先存档再 FINISH_CHAPTER（与对码轨同口径，dict = 素材 id）。
+   * 打字测速以「整篇」为一题，所以不存在 NEXT_WORD。
+   */
+  const handleUpstreamFinished = useCallback(() => {
+    dispatch({ type: TypingStateActionType.SET_IS_SAVING_RECORD, payload: true })
+    dispatch({ type: TypingStateActionType.FINISH_CHAPTER })
+  }, [dispatch])
+
+  // SPEED2-08：上屏轨从**第一个按键**开始计时（比「首次上屏」更贴近真实打字时长）
+  const onUpstreamFirstKey = useCallback(() => {
+    if (!state.isTyping) dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: true })
+  }, [state.isTyping, dispatch])
+
   useConfetti(state.isFinished)
 
   const onBackToLearn = useCallback(() => {
@@ -219,19 +253,48 @@ const TypingLearnerPage: React.FC = () => {
                   ></div>
                 </div>
               ) : (
-                !state.isFinished && (
+                !state.isFinished &&
+                (effectiveTrack === 'ime' ? (
+                  // 上屏轨（打字测速）：不显示键盘、不显示拼音行（SPEED2-09）
+                  currentUrlWord ? (
+                    <UpstreamPanel
+                      text={currentUrlWord.notation ?? currentUrlWord.name}
+                      isEnglish={material.languageTab === 'en'}
+                      onFirstKey={onUpstreamFirstKey}
+                      onProgress={(correct) => {
+                        setUnitsDone(correct)
+                        setImeSubmitted(correct)
+                      }}
+                      onFinished={handleUpstreamFinished}
+                      onPunctError={() => setNotice('中文标点请用全角（，。？），当前被判为标点格式错误')}
+                    />
+                  ) : null
+                ) : (
                   <TypingPanel
                     material={material}
                     scheme={material.schemeId === 'en' ? 'en' : scheme}
                     onWordCompleted={(n) => setUnitsDone((old) => old + n)}
                   />
-                )
+                ))
               )}
             </div>
-            <TypingSpeed isChinese={material.languageTab === 'zh'} unitsDone={unitsDone} />
+            <TypingSpeed
+              isChinese={material.languageTab === 'zh'}
+              unitsDone={unitsDone}
+              inputTrack={effectiveTrack}
+            />
           </div>
         </div>
       </Layout>
+
+      {/* 非阻塞提示（SPEED2-11） */}
+      {notice && (
+        <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2" role="status">
+          <div className="my-card flex items-center rounded-lg bg-white px-4 py-2 text-sm text-gray-600 shadow-md dark:bg-gray-800 dark:text-gray-200">
+            {notice}
+          </div>
+        </div>
+      )}
     </TypingContext.Provider>
   )
 }

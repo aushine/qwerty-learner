@@ -10,8 +10,9 @@
  */
 
 import DictTagSwitcher from '@/pages/Gallery-N/DictTagSwitcher'
-import { MATERIAL_TYPE_LABELS } from '@/resources/typingMaterials'
-import type { TypingMaterialResource, TypingMaterialType } from '@/typings/typing'
+import { DIFFICULTY_LABELS, DIFFICULTY_ORDER, MATERIAL_TYPE_LABELS } from '@/resources/typingMaterials'
+import type { TypingMaterialResource, TypingMaterialType, TypingWordDifficulty } from '@/typings/typing'
+import classNames from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import TypingMaterialCard from './TypingMaterialCard'
 
@@ -42,6 +43,8 @@ export default function MaterialGroup({
     [groupedMaterialsByType],
   )
   const [currentType, setCurrentType] = useState(typeList.length > 0 ? typeList[0] : '')
+  /** 难度子胶囊（GAL2-10 方案 A：仅文章类显示） */
+  const [currentDifficulty, setCurrentDifficulty] = useState<TypingWordDifficulty | 'all'>('all')
 
   const onChangeCurrentType = useCallback(
     (label: string) => {
@@ -57,6 +60,14 @@ export default function MaterialGroup({
     if (current) setCurrentType(current[0])
   }, [currentMaterialId, groupedMaterialsByType])
 
+  /** 当前类型下的素材（文章类按难度再过滤） */
+  const materialsOfType = currentType ? groupedMaterialsByType[currentType] ?? [] : []
+  const isArticleType = materialsOfType.some((m) => m.difficulty !== undefined)
+  const visibleMaterials = useMemo(
+    () => (isArticleType && currentDifficulty !== 'all' ? materialsOfType.filter((m) => m.difficulty === currentDifficulty) : materialsOfType),
+    [materialsOfType, isArticleType, currentDifficulty],
+  )
+
   return (
     <div>
       <h2 className="mb-2 text-xl font-normal text-gray-700 dark:text-gray-200">{title}</h2>
@@ -65,9 +76,35 @@ export default function MaterialGroup({
         currentTag={currentType ? labelOf(currentType) : ''}
         onChangeCurrentTag={onChangeCurrentType}
       />
+
+      {/* 难度子胶囊（GAL2-11：小一号，复用胶囊视觉） */}
+      {isArticleType && (
+        <div className="mt-4 flex items-center space-x-2">
+          {(['all', ...DIFFICULTY_ORDER] as const).map((level) => {
+            const checked = currentDifficulty === level
+            return (
+              <button
+                key={level}
+                type="button"
+                className={classNames(
+                  'whitespace-nowrap rounded-[3rem] px-3 py-1 text-sm transition-colors duration-300',
+                  checked
+                    ? 'bg-indigo-400 text-white'
+                    : 'border border-gray-200 bg-white text-gray-500 hover:bg-indigo-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-600',
+                )}
+                onClick={() => setCurrentDifficulty(level)}
+                aria-pressed={checked}
+              >
+                {level === 'all' ? '全部' : DIFFICULTY_LABELS[level]}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       <div className="mt-8 grid gap-x-5 gap-y-10 px-1 pb-4 sm:grid-cols-1 md:grid-cols-2 dic3:grid-cols-3 dic4:grid-cols-4">
         {currentType && groupedMaterialsByType[currentType] ? (
-          groupedMaterialsByType[currentType].map((material) => (
+          visibleMaterials.map((material) => (
             <TypingMaterialCard
               key={material.id}
               material={material}

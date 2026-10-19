@@ -8,11 +8,10 @@
  *       卡住 3 秒自闪 / Ctrl+J 重放 → hintTrigger / cursor 不变 3s 自动触发（KB-12）。
  * 🔴 键位事实（声母/韵母归属）唯一真源 = 基线 A1 §2.2，经 src/resources/flypyKeyLabels.ts 抄录。
  */
-
-import { FLYPY_KEY_LABELS, flypyKeyTooltip } from '@/resources/flypyKeyLabels'
 import Tooltip from '@/components/Tooltip'
-import { classNames } from '@/utils'
 import useWindowSize from '@/hooks/useWindowSize'
+import { FLYPY_KEY_LABELS, flypyKeyTooltip } from '@/resources/flypyKeyLabels'
+import { IS_MAC_OS, classNames } from '@/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Fragment } from 'react'
 import IconChevronDown from '~icons/tabler/chevron-down'
@@ -21,18 +20,65 @@ export type TypingKeyboardScheme = 'quanpin' | 'flypy' | 'en'
 
 /** 显式的 字符 → 物理键 code 映射（KB-19：不得用字符串拼接） */
 export const CHAR_TO_CODE: Record<string, string> = {
-  a: 'KeyA', b: 'KeyB', c: 'KeyC', d: 'KeyD', e: 'KeyE', f: 'KeyF', g: 'KeyG', h: 'KeyH', i: 'KeyI', j: 'KeyJ',
-  k: 'KeyK', l: 'KeyL', m: 'KeyM', n: 'KeyN', o: 'KeyO', p: 'KeyP', q: 'KeyQ', r: 'KeyR', s: 'KeyS', t: 'KeyT',
-  u: 'KeyU', v: 'KeyV', w: 'KeyW', x: 'KeyX', y: 'KeyY', z: 'KeyZ',
+  a: 'KeyA',
+  b: 'KeyB',
+  c: 'KeyC',
+  d: 'KeyD',
+  e: 'KeyE',
+  f: 'KeyF',
+  g: 'KeyG',
+  h: 'KeyH',
+  i: 'KeyI',
+  j: 'KeyJ',
+  k: 'KeyK',
+  l: 'KeyL',
+  m: 'KeyM',
+  n: 'KeyN',
+  o: 'KeyO',
+  p: 'KeyP',
+  q: 'KeyQ',
+  r: 'KeyR',
+  s: 'KeyS',
+  t: 'KeyT',
+  u: 'KeyU',
+  v: 'KeyV',
+  w: 'KeyW',
+  x: 'KeyX',
+  y: 'KeyY',
+  z: 'KeyZ',
   ' ': 'Space',
-  '`': 'Backquote', '~': 'Backquote',
-  '1': 'Digit1', '2': 'Digit2', '3': 'Digit3', '4': 'Digit4', '5': 'Digit5',
-  '6': 'Digit6', '7': 'Digit7', '8': 'Digit8', '9': 'Digit9', '0': 'Digit0',
-  '-': 'Minus', '_': 'Minus', '=': 'Equal', '+': 'Equal',
-  '[': 'BracketLeft', '{': 'BracketLeft', ']': 'BracketRight', '}': 'BracketRight',
-  '\\': 'Backslash', '|': 'Backslash',
-  ';': 'Semicolon', ':': 'Semicolon', "'": 'Quote', '"': 'Quote',
-  ',': 'Comma', '<': 'Comma', '.': 'Period', '>': 'Period', '/': 'Slash', '?': 'Slash',
+  '`': 'Backquote',
+  '~': 'Backquote',
+  '1': 'Digit1',
+  '2': 'Digit2',
+  '3': 'Digit3',
+  '4': 'Digit4',
+  '5': 'Digit5',
+  '6': 'Digit6',
+  '7': 'Digit7',
+  '8': 'Digit8',
+  '9': 'Digit9',
+  '0': 'Digit0',
+  '-': 'Minus',
+  _: 'Minus',
+  '=': 'Equal',
+  '+': 'Equal',
+  '[': 'BracketLeft',
+  '{': 'BracketLeft',
+  ']': 'BracketRight',
+  '}': 'BracketRight',
+  '\\': 'Backslash',
+  '|': 'Backslash',
+  ';': 'Semicolon',
+  ':': 'Semicolon',
+  "'": 'Quote',
+  '"': 'Quote',
+  ',': 'Comma',
+  '<': 'Comma',
+  '.': 'Period',
+  '>': 'Period',
+  '/': 'Slash',
+  '?': 'Slash',
 }
 
 export type TypingKeyboardProps = {
@@ -64,6 +110,12 @@ type KeyDef = {
   char?: string
 }
 
+/** 功能键标签（KB2-06）：需要缩字的长标签 */
+const FUNCTION_KEYS = new Set(['Tab', 'Caps', 'Shift', 'Ctrl', 'Alt', 'Enter', 'Backspace', '⌘'])
+
+/** macOS 用 ⌘，其余平台交给 <WindowsKeyIcon />（label 仅用于 a11y 与内部判定） */
+const META_LABEL = IS_MAC_OS ? '⌘' : 'Win'
+
 const letter = (ch: string): KeyDef => ({ code: `Key${ch.toUpperCase()}`, label: ch.toUpperCase(), units: 1, char: ch })
 const fn = (code: string, label: string, units: number): KeyDef => ({ code, label, units })
 const sym = (code: string, label: string, char: string, units = 1): KeyDef => ({ code, label, units, char })
@@ -73,17 +125,33 @@ const ROWS: KeyDef[][] = [
   // 行 0：数字行（不标注声韵母）
   [
     sym('Backquote', '`', '`'),
-    sym('Digit1', '1', '1'), sym('Digit2', '2', '2'), sym('Digit3', '3', '3'), sym('Digit4', '4', '4'),
-    sym('Digit5', '5', '5'), sym('Digit6', '6', '6'), sym('Digit7', '7', '7'), sym('Digit8', '8', '8'),
-    sym('Digit9', '9', '9'), sym('Digit0', '0', '0'),
-    sym('Minus', '-', '-'), sym('Equal', '=', '='),
+    sym('Digit1', '1', '1'),
+    sym('Digit2', '2', '2'),
+    sym('Digit3', '3', '3'),
+    sym('Digit4', '4', '4'),
+    sym('Digit5', '5', '5'),
+    sym('Digit6', '6', '6'),
+    sym('Digit7', '7', '7'),
+    sym('Digit8', '8', '8'),
+    sym('Digit9', '9', '9'),
+    sym('Digit0', '0', '0'),
+    sym('Minus', '-', '-'),
+    sym('Equal', '=', '='),
     fn('Backspace', 'Backspace', 2),
   ],
   // 行 1：Tab + Q~P + [ ] \
   [
     fn('Tab', 'Tab', 1.5),
-    letter('q'), letter('w'), letter('e'), letter('r'), letter('t'), letter('y'), letter('u'), letter('i'),
-    letter('o'), letter('p'),
+    letter('q'),
+    letter('w'),
+    letter('e'),
+    letter('r'),
+    letter('t'),
+    letter('y'),
+    letter('u'),
+    letter('i'),
+    letter('o'),
+    letter('p'),
     sym('BracketLeft', '[', '['),
     sym('BracketRight', ']', ']'),
     sym('Backslash', '\\', '\\', 1.5),
@@ -91,7 +159,15 @@ const ROWS: KeyDef[][] = [
   // 行 2：Caps + A~L + ; ' Enter
   [
     fn('CapsLock', 'Caps', 1.75),
-    letter('a'), letter('s'), letter('d'), letter('f'), letter('g'), letter('h'), letter('j'), letter('k'), letter('l'),
+    letter('a'),
+    letter('s'),
+    letter('d'),
+    letter('f'),
+    letter('g'),
+    letter('h'),
+    letter('j'),
+    letter('k'),
+    letter('l'),
     sym('Semicolon', ';', ';'),
     sym('Quote', "'", "'"),
     fn('Enter', 'Enter', 2.25),
@@ -99,20 +175,28 @@ const ROWS: KeyDef[][] = [
   // 行 3：Shift + Z~M + , . / Shift
   [
     fn('ShiftLeft', 'Shift', 2.5),
-    letter('z'), letter('x'), letter('c'), letter('v'), letter('b'), letter('n'), letter('m'),
+    letter('z'),
+    letter('x'),
+    letter('c'),
+    letter('v'),
+    letter('b'),
+    letter('n'),
+    letter('m'),
     sym('Comma', ',', ','),
     sym('Period', '.', '.'),
     sym('Slash', '/', '/'),
     fn('ShiftRight', 'Shift', 2.5),
   ],
   // 行 4：Ctrl Win Alt Space Alt Win Ctrl（空格可点击，英语轨需要）
+  // KB2-08：Win 键不再用 '⊞'（视觉像「田」），改由 <WindowsKeyIcon /> 渲染；
+  //         macOS 下显示 '⌘'（单字符，无需缩字）。
   [
     fn('ControlLeft', 'Ctrl', 1.5),
-    fn('MetaLeft', '⊞', 1.5),
+    fn('MetaLeft', META_LABEL, 1.5),
     fn('AltLeft', 'Alt', 1.5),
     sym('Space', '', ' ', 6),
     fn('AltRight', 'Alt', 1.5),
-    fn('MetaRight', '⊞', 1.5),
+    fn('MetaRight', META_LABEL, 1.5),
     fn('ControlRight', 'Ctrl', 1.5),
   ],
 ]
@@ -126,6 +210,32 @@ const ROWS: KeyDef[][] = [
 function faceFinal(finals: string[]): string | undefined {
   const shown = finals.filter((f) => !f.startsWith('ü') && f !== 'er')
   return shown.length > 0 ? shown.join('/') : undefined
+}
+
+/**
+ * 韵母字号（KB2-02）：按字符数分级缩字，避免 `iang/uang`（9 字符）溢出 40px 键帽。
+ * 系数来自实测：font-mono 字符宽 ≈ 0.6 × fontSize。
+ */
+function finalFontSize(len: number, scale: number): number {
+  if (len >= 7) return Math.max(9, Math.round(9 * scale))
+  if (len >= 5) return Math.max(9, Math.round(8.5 * scale))
+  if (len >= 3) return Math.max(9, Math.round(10 * scale))
+  return Math.max(9, Math.round(11 * scale))
+}
+
+/** 双韵母拆两行的阈值（KB2-03）：长度 ≥7 时 `iang/uang`、`ong/iong` 拆成两行显示 */
+const SPLIT_FINAL_LEN = 7
+
+/** Windows 键四色方块（KB2-08）：用 CSS 四格表达，不引图标库、不复制官方带透视的 LOGO */
+function WindowsKeyIcon({ size }: { size: number }) {
+  return (
+    <span aria-hidden="true" className="grid grid-cols-2 gap-[1px]" style={{ width: size, height: size }}>
+      <span style={{ background: '#F25022' }} />
+      <span style={{ background: '#7FBA00' }} />
+      <span style={{ background: '#00A4EF' }} />
+      <span style={{ background: '#FFB900' }} />
+    </span>
+  )
 }
 
 /** 闪烁持续时长（KB-12） */
@@ -158,16 +268,14 @@ export default function TypingKeyboard({
     return Math.max(20, Math.min(shrunk, maxByWidth))
   }, [width, density])
   const gap = keyU >= 44 ? 6 : keyU >= 40 ? 5 : 4
+  /** KB2-05：字号缩放基准（40px 键宽为 1.0） */
+  const scaleValue = keyU / 40
 
   const nextChar = cursor < targetCode.length ? targetCode[cursor] : undefined
   const nextCode = nextChar !== undefined ? CHAR_TO_CODE[nextChar] : undefined
   // V/I/U 双语义：第一键位（cursor 偶数）高亮声母角标，第二键位高亮韵母（KB-02）
   const nextZone: 'all' | 'initial' | 'final' =
-    scheme === 'flypy' && nextCode && ['KeyV', 'KeyI', 'KeyU'].includes(nextCode)
-      ? cursor % 2 === 0
-        ? 'initial'
-        : 'final'
-      : 'all'
+    scheme === 'flypy' && nextCode && ['KeyV', 'KeyI', 'KeyU'].includes(nextCode) ? (cursor % 2 === 0 ? 'initial' : 'final') : 'all'
 
   const doneCodes = useMemo(() => {
     const set = new Set<string>()
@@ -254,6 +362,10 @@ export default function TypingKeyboard({
                   const annotated = scheme === 'flypy' && label !== undefined && (label.initials.length > 0 || label.finals.length > 0)
                   const initial = annotated ? label.initials[0] : undefined
                   const finalText = annotated ? faceFinal(label.finals) : undefined
+                  // KB2-03：长韵母拆两行，保证 iang/uang（9 字符）不溢出
+                  const finalLines = finalText && finalText.length >= SPLIT_FINAL_LEN ? finalText.split('/') : finalText ? [finalText] : []
+                  // KB2-01 / KB2-05：字号随密度档等比缩放
+                  const letterSize = Math.max(12, Math.round(15 * Math.min(1, scaleValue + 0.15)))
                   const isNext = def.code === nextCode
                   const isDone = doneCodes.has(def.code)
                   const isWrong = def.code === wrongKeyCode
@@ -268,10 +380,10 @@ export default function TypingKeyboard({
                         isWrong
                           ? 'animate-[shake_0.3s] border-red-400 bg-red-50 dark:bg-red-900/30'
                           : isNext
-                            ? 'scale-[1.03] border-indigo-500 bg-indigo-500 text-white ring-2 ring-indigo-300 ring-offset-1'
-                            : isDone
-                              ? 'border-gray-200 bg-indigo-100 dark:border-gray-600 dark:bg-indigo-900/40'
-                              : 'border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700',
+                          ? 'scale-[1.03] border-indigo-500 bg-indigo-500 text-white ring-2 ring-indigo-300 ring-offset-1'
+                          : isDone
+                          ? 'border-gray-200 bg-indigo-100 dark:border-gray-600 dark:bg-indigo-900/40'
+                          : 'border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700',
                         isHint ? 'animate-pulse' : undefined,
                         def.char && onKeyClick ? 'cursor-pointer hover:bg-indigo-50 dark:hover:bg-gray-600' : '',
                       )}
@@ -290,10 +402,13 @@ export default function TypingKeyboard({
                       role={annotated ? 'button' : undefined}
                       aria-label={
                         annotated
-                          ? `${def.label} 键${initial ? `，声母 ${initial}` : ''}${finalText ? `，韵母 ${finalText.replace('/', '、')}` : ''}`
+                          ? `${def.label} 键${initial ? `，声母 ${initial}` : ''}${
+                              finalText ? `，韵母 ${finalText.replace('/', '、')}` : ''
+                            }`
                           : undefined
                       }
                       aria-hidden={annotated ? undefined : true}
+                      data-keycap={def.code}
                     >
                       {/* 区 ①：声母角标（左上角） */}
                       {initial && (
@@ -303,42 +418,70 @@ export default function TypingKeyboard({
                             zone === 'initial'
                               ? 'rounded bg-indigo-500 px-0.5 text-white'
                               : isNext
-                                ? 'text-white/80'
-                                : 'text-gray-400 dark:text-gray-500',
+                              ? 'text-white/80'
+                              : 'text-gray-400 dark:text-gray-500',
                           )}
                         >
                           {initial}
                         </span>
                       )}
-                      {/* 区 ② + ③：主字母（居中偏上）与韵母（紧贴其下） */}
-                      <div className="flex flex-col items-center justify-center pb-1">
-                        <span
-                          className={classNames(
-                            'font-mono text-lg font-medium leading-none',
-                            isNext ? 'text-white' : isDone ? 'text-indigo-500' : 'text-gray-600 dark:text-gray-200',
-                          )}
-                        >
-                          {def.label}
-                        </span>
-                        {finalText && (
+                      {/* 区 ② + ③：主字母（居中偏上）与韵母（紧贴其下，长韵母自动拆行/缩字） */}
+                      <div
+                        className={`flex w-full flex-col items-center justify-center overflow-hidden px-0.5 ${
+                          finalLines.length > 1 ? 'pb-0.5' : 'pb-1'
+                        }`}
+                      >
+                        {def.label === 'Win' ? (
+                          <WindowsKeyIcon size={Math.max(8, Math.round(letterSize * 0.75))} />
+                        ) : (
                           <span
                             className={classNames(
-                              'font-mono text-[11px] leading-none',
-                              zone === 'final'
-                                ? 'rounded bg-indigo-500 px-1 text-white'
-                                : isNext
-                                  ? 'text-white/80'
-                                  : 'text-indigo-500 dark:text-indigo-300',
+                              'whitespace-nowrap font-mono font-medium leading-none',
+                              FUNCTION_KEYS.has(def.label) || def.label.length > 2 ? 'tracking-tight' : '',
+                              isNext ? 'text-white' : isDone ? 'text-indigo-500' : 'text-gray-600 dark:text-gray-200',
+                            )}
+                            style={{
+                              // KB2-06：功能键字号封顶（Backspace 最长，单独再降一档），避免文字超出键面
+                              fontSize:
+                                FUNCTION_KEYS.has(def.label) || def.label.length > 2
+                                  ? Math.max(9, Math.round((def.label === 'Backspace' ? 10 : 11) * scaleValue))
+                                  : letterSize,
+                            }}
+                          >
+                            {def.label}
+                          </span>
+                        )}
+                        {finalLines.length > 0 && (
+                          <span
+                            className={classNames(
+                              'flex flex-col items-center leading-[1]',
+                              finalLines.length > 1 ? 'mt-0' : 'mt-0.5',
+                              zone === 'final' ? 'rounded bg-indigo-500 px-1 text-white' : '',
                             )}
                           >
-                            {finalText}
+                            {finalLines.map((line, li) => (
+                              <span
+                                key={`${def.code}-f-${li}`}
+                                className={classNames(
+                                  'whitespace-nowrap font-mono',
+                                  zone === 'final' ? 'text-white' : isNext ? 'text-white/80' : 'text-indigo-500 dark:text-indigo-300',
+                                )}
+                                style={{
+                                  fontSize: finalFontSize(
+                                    finalLines.length > 1 ? Math.max(...finalLines.map((l) => l.length)) : line.length,
+                                    scaleValue,
+                                  ),
+                                  lineHeight: 1.05,
+                                }}
+                              >
+                                {line}
+                              </span>
+                            ))}
                           </span>
                         )}
                       </div>
                       {/* 待按：底部 2px 实心条（非颜色标记，KB-09；V/I/U 区高亮是附加提示，不替换底部条） */}
-                      {isNext && (
-                        <span className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded bg-white/80" />
-                      )}
+                      {isNext && <span className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded bg-white/80" />}
                     </div>
                   )
 

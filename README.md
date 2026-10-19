@@ -3,8 +3,12 @@
 </div>
 
 <h1 align="center">
-  Qwerty Learner
+  Qwerty Learner · 双模式版
 </h1>
+
+<p align="center">
+  <b>学习模式</b> 背单词 · <b>打字模式</b> 练输入法 —— 一个键盘，两种练法
+</p>
 
 <p align="center">
   <a href="./docs/README_EN.md">English</a>
@@ -12,320 +16,266 @@
 </p>
 
 <p align="center">
-  为键盘工作者设计的单词记忆与英语肌肉记忆锻炼软件
-</p>
-
-<p align="center" style="display: flex; justify-content: center; gap: 10px;">
-  <a href="https://github.com/Realkai42/qwerty-learner/blob/master/LICENSE"><img src="https://img.shields.io/github/license/Realkai42/qwerty-learner" alt="License"></a>
+  <a href="https://github.com/aushine/qwerty-learner/blob/master/LICENSE"><img src="https://img.shields.io/github/license/aushine/qwerty-learner" alt="License"></a>
   <a><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"/></a>
   <a><img src="https://img.shields.io/badge/Powered%20by-React-blue"/></a>
-  <a><img src="https://img.shields.io/github/stars/RealKai42/qwerty-learner"/></a>
-  <a><img src="https://img.shields.io/github/forks/RealKai42/qwerty-learner"/></a>
+  <a><img src="https://img.shields.io/badge/Star%20Up-Upstream%20Project-orange"/></a>
 </p>
-<div align=center>
-<a href="https://trendshift.io/repositories/3239" target="_blank" class="trendshift-badge"><img src="https://trendshift.io/api/badge/repositories/3239" alt="RealKai42%2Fqwerty-learner | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
 
-<div align=center>
-<img  src="docs/Screenshot.png"/>
-</div>
+> 本项目 fork 自 [RealKai42/qwerty-learner](https://github.com/RealKai42/qwerty-learner)（GPL-3.0）。
+> 在完整保留原「学习模式」的前提下，新增了一套**独立的打字练习模式**：中文全拼 / 小鹤双拼对码训练、
+> 打字测速、拼音与汉字逐字对齐的题面、常驻键位键盘。两个模式共用统计与错题本，互不干扰。
 
-## 📸 在线访问
+---
 
-**首选部署**: <https://qwerty.kaiyi.cool/>
-GitHub Pages: <https://realkai42.github.io/qwerty-learner/>
+## 📖 这是什么
 
-镜像仓库:
-[GitCode: RealKai42/qwerty-learner](https://gitcode.com/RealKai42/qwerty-learner/overview)
-[Gitee: KaiyiWing/qwerty-learner](https://gitee.com/KaiyiWing/qwerty-learner)
-<br/>
-<br/>
+原版 Qwerty Learner 解决的是「**背英语单词 + 练英语键入肌肉记忆**」。
+这个 fork 在此基础上补上了另一端：**中文用户的输入法输出速度**。
 
-项目已发布 VSCode 插件版，一键启动、随时开始练习
-[VSCode Plugin Market](https://marketplace.visualstudio.com/items?itemName=Kaiyi.qwerty-learner)
-[GitHub](https://github.com/Realkai42/qwerty-learner-vscode)
+我们每天要打的中文比英文多得多，但几乎没有人系统练过输入法：
+全拼打不快、双拼记不住键位、换了个方案就得从头适应。
+因此本版把「打字训练」做成了一等公民，而不是原版练习页的一个附属功能：
 
-<br />
+| | 学习模式（原版） | 打字模式（新增） |
+| --- | --- | --- |
+| 入口 | `/` | `/typing` · 素材选择 `/typing/gallery` |
+| 练什么 | 英语单词 + 释义，练拼写记忆 | 中文全拼 / 小鹤双拼 / 英语长文，练输入法 |
+| 判定单位 | 单个单词 | 对码轨：每个**字**的编码；测速轨：每个**字符** |
+| 题面 | 单词 + 音标 + 释义 | **拼音行 / 汉字行逐字对齐**，或整段文章 |
+| 键盘提示 | 无 | 常驻 QWERTY，小鹤三区标注 + 当前键高亮 |
+| 出错策略 | 整词重打 | 对码轨整题回滚；测速轨只标红不回滚 |
+| 统计口径 | WPM / 正确率 | 中文「字/分」，英语 WPM |
 
-## 快速部署
+---
 
-### Vercel
+## 🚀 快速开始
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRealKai42%2Fqwerty-learner)
+```bash
+git clone https://github.com/aushine/qwerty-learner.git
+cd qwerty-learner
+yarn install
+yarn start          # http://localhost:5173/
+```
 
-#### 部署步骤
+- Node 18+ / Yarn 1 即可，无需额外配置。
+- 开发服务器默认监听所有网卡（`server.host = true`），局域网可用 `http://<你的IP>:5173/` 访问。
+- Windows 用户也可直接运行 `scripts/install.ps1`，macOS 运行 `scripts/install.sh` 一键安装并启动。
 
-1. 更新 `Vercel Build & Development Settings` -> `Output Directory`："build"
-2. Click Deploy Button
+### 两个入口
 
-<br />
+| 地址 | 说明 |
+| --- | --- |
+| `/` | **学习模式**（原版功能，行为与上游一致） |
+| `/typing` | **打字模式**练习页 |
+| `/typing/gallery` | 打字模式素材选择页 |
 
-## ✨ 设计思想
+模式切换在页头标题处：**鼠标悬停标题块 / 点击标题右侧箭头**即可展开模式浮层。
+当前选择的模式会记在浏览器里，下次打开自动落地到该模式。
 
-软件设计的目标群体为以英语作为主要工作语言的键盘工作者。部分人会出现输入母语时的打字速度快于英语的情况，因为多年的母语输入练就了非常坚固的肌肉记忆 💪，而英语输入的肌肉记忆相对较弱，易出现输入英语时“提笔忘字”的现象。
+---
 
-同时为了巩固英语技能，也需要持续的背诵单词 📕，本软件将英语单词的记忆与英语键盘输入的肌肉记忆的锻炼相结合，可以在背诵单词的同时巩固肌肉记忆。
+## ⌨️ 打字模式详解
 
-为了避免造成错误的肌肉记忆，设计上如果用户单词输入错误则需要重新输入单词，尽可能确保用户维持正确的肌肉记忆。
+### 三种输入方式
 
-软件也对需要机考英语的人群有一定的帮助。
+素材页第 ② 级提供三个互斥选项：
 
-**For Coder**：
+| 选项 | 内部轨道 | 说明 |
+| --- | --- | --- |
+| **全拼** | `code` | 按拼音字母逐个输入，练最通用的输入法 |
+| **双拼** → 小鹤双拼 | `code` | 每字两键，键面标注声母 / 韵母；微软双拼、自然码、搜狗双拼显示为「敬请期待」 |
+| **打字测速** | `ime` | 走你自己的输入法，直接对着文本上屏，只测真实打字速度 |
 
-内置了程序员工作常用单词的词库，方便练习工作中常用的单词、提高输入速度。也内置了诸多语言的 API 的练习，帮助以程序员快速熟悉常用的 API，更多语言的 API 正在逐步添加中...
+### 题面：拼音行 / 汉字行逐字对齐
 
-<div align=center>
-<img  src="https://github.com/Realkai42/qwerty-learner/blob/master/docs/coder.png"/>
-</div>
+中文题面按「一行拼音、一行汉字」交替排版，两行共用同一份网格列模板，因此**每个汉字正好落在它的编码正下方**：
 
-<br />
-<br />
+```
+jing ye si   li bai
+ 静   夜  思  李  白
+```
 
-## 🛠 功能列表
+- 某个字的编码全部打对后，**拼音与汉字同时转绿**；
+- 正在输入的字，上下两行同时带底色高亮；
+- 标点与空格极度淡化：显示出来帮你定位，但**不需要输入**；
+- 分组按累积编码宽度切分，长句不会把拼音行撑出容器；`\n` 强制断组。
 
-### 词库
+### 键盘：常驻显示，不靠猜
 
-内置了常用的 CET-4 、CET-6 、GMAT 、GRE 、IELTS 、SAT 、TOEFL 、考研英语、专业四级英语、专业八级英语，也有程序员常见英语单词以及多种编程语言 API 等词库。 尽可能满足大部分用户对单词记忆的需求，也非常欢迎社区贡献更多的词库。
-<br />
-<br />
+- 完整 QWERTY 布局（数字行 / 字母三行 / 空格行），键高随题面行数自动分三档压缩，**单屏不滚动**；
+- 小鹤双拼下每键标注三区：左上角声母、中间主字母、下方韵母（长韵母如 `iang/uang` 自动缩字或拆行）；
+- 待按键为实心高亮 + 底部标记条，不只靠颜色区分；
+- 按错抖动变红；卡住 3 秒（或 `Ctrl+J`）自动闪烁提示当前键；
+- 可点击键帽输入；可一键折叠（状态会记住）。
 
-### 音标显示、发音功能
+### 两种轨道，两套判定
 
-方便用户在记忆单词时，同时记忆读音与音标。
+| | 对码轨（全拼 / 双拼） | 上屏轨（打字测速） |
+| --- | --- | --- |
+| 输入绕过输入法 | 是（隐藏 `password` 输入框强制关 IME，只读 `e.code`） | 否，走你的中文输入法 |
+| 判定单位 | 每个字的编码片段 | 每个字符 |
+| 打错时 | 整题 300ms 后回滚清空，重打一遍 | 错字标红、**不回滚**，游标继续前进 |
+| 一次上屏多字 | 不涉及 | 逐字全部校验，不会只校验最后一个字 |
+| 标点 | 显示但不输入 | 必须输入全角标点；半角会单独提示「标点格式错误」 |
+| 速度指标 | 已完成的汉字数 / 时间 | 上屏正确字数 / 时间（从**第一个按键**开始计时） |
 
-<div align=center>
-<img  src="https://github.com/Realkai42/qwerty-learner/blob/master/docs/phonetic.jpeg"/>
-</div>
-<br />
-<br />
+### 快捷键
 
-### 默写模式
+| 按键 | 作用 |
+| --- | --- |
+| 任意字母键 | 开始 / 继续练习 |
+| `Tab` | 显示 / 隐藏汉字行（或点页头的语言图标） |
+| `Ctrl + J` | 重放当前键提示 |
+| `Ctrl + Shift + ← / →` | 上一题 / 下一题 |
+| 素材页 `Enter` / `Esc` | 返回练习页（焦点在卡片等控件上时交给控件自己处理） |
 
-在用户完成一个章节的练习后，会弹出选项是否默写本章，方便用户巩固本章学习的单词。
+### 素材
 
-<div align=center>
-<img  src="https://github.com/Realkai42/qwerty-learner/blob/master/docs/dictation.png"/>
-</div>
-<br />
-<br />
+中文素材按 `全拼 / 小鹤双拼` 两套编码各生成一份 JSON，共 18 个文件；英语素材与方案无关。
 
-### 速度、正确率显示
+**中文 · 输入法练习**
 
-量化用户输入的速度和输入的正确率，让用户有感知的了解自己技能的提升
+| 素材 | 全拼 | 小鹤双拼 | 章节 |
+| --- | :-: | :-: | --- |
+| 常用 500 字 | ✅ | ✅ | 10 字 / 章 |
+| 常用 3500 字 | ✅ | ✅ | 10 字 / 章 |
+| 常用 1000 词 | ✅ | ✅ | 10 词 / 章 |
+| 成语 500 | — | ✅ | 8 条 / 章 |
+| 短句 200 | — | ✅ | 8 句 / 章 |
+| 医学常用词 | ✅ | ✅ | 10 词 / 章 |
+| 计算机常用词 | ✅ | ✅ | 10 词 / 章 |
+| 古诗文短篇 | ✅ | ✅ | 1 篇 / 段 |
+| 轻松短文 | ✅ | ✅ | 1 篇 / 段 |
+| 白话短文 10 篇 | ✅ | ✅ | 1 篇 / 段 |
 
-<div align=center>
-<img  src="https://github.com/Realkai42/qwerty-learner/blob/master/docs/speed.jpeg"/>
-</div>
-<br />
-<br />
+**英语 · 文章练习**：English Paragraphs（段落）/ English Essays（文章）/ English Classics（培根、爱默生、梭罗等公版原文）。
 
-## 如何贡献
+素材页的选择全部反映在 URL 参数上（`?tab=&scheme=&track=&material=`），可直接分享或收藏某个练习组合；非法参数会被忽略并回落默认值。
 
-### 贡献代码
+### 数据与隐私
 
-[Call for Contributor](https://github.com/Realkai42/qwerty-learner/issues/390)
-[贡献准则](./docs/CONTRIBUTING.md)
+- 练习记录沿用本地 IndexedDB（`wordRecords` / `chapterRecords`，**无 schema 变更**），`dict` 字段直接写素材 id（如 `zh-flypy-zi-500`）；
+- 打字模式的章节、素材、方案、键盘折叠等状态全部走独立 atom 与独立 localStorage key，**不写学习模式的状态**；
+- 统计页会识别打字模式的素材 id 并单独归类展示；错题本同样可用。
 
-### 贡献词库
+---
 
-[导入词典](./docs/toBuildDict.md)
+## ✨ 学习模式（继承自上游）
 
-## 运行项目
+完整保留原版能力，未做行为改动：
 
-本项目是基于`React`开发的，需要 node 环境来运行。
+- **词库**：CET-4/6、GMAT、GRE、IELTS、SAT、TOEFL、考研、专四专八，程序员常用词与多种语言 API 等 380+ 词库；
+- **音标与发音**：背单词同时记忆读音；
+- **默写模式**：完成一章后可选择默写巩固；
+- **速度与正确率**：把技能提升量化成可见的数字；
+- **错题本、统计图表、深色模式、音效、主题定制**。
 
-### 环境准备
+> 设计理念仍是「输错就重打整个单词」，避免形成错误的肌肉记忆。
 
-1. NodeJS
-2. Git
-3. Yarn
+---
 
-> **验证是否已经拥有相关环境**
->
-> 1. 手动验证  
->    请在命令行下执行以下命令，查看是否有对应版本输出
->
->    ```sh
->    node --version
->    git --version
->    yarn --version
->    ```
->
-> 2. 脚本验证  
->    使用我们提供的脚本对所需环境进行验证，如果确实依赖项会自动安装
->    - Windows 用户可以直接执行 [pre-check.ps1](scripts/pre-check.ps1) 脚本
->    - MacOS 用户可以直接执行 [pre-check.sh](scripts/pre-check.sh) 脚本
+## 🧱 技术栈
 
-如果有对应环境缺失，我们可以参考下列官方文档进行安装
+| 关注点 | 选型 |
+| --- | --- |
+| 框架 | React 18 + TypeScript + Vite 4 |
+| 状态 | jotai（全局 atom）+ use-immer reducer（练习页局部状态） |
+| 样式 | Tailwind CSS 3 + shadcn/ui 风格组件（Radix UI） |
+| 交互浮层 | @floating-ui/react + Headless UI |
+| 本地数据 | Dexie（IndexedDB） |
+| 图表 / 导出 | ECharts / xlsx |
+| 词库构建 | tsx + pinyin-pro（**仅构建期**，运行时不加载拼音库） |
 
-> - [NodeJS](https://nodejs.org/en/download)
-> - [Git](https://git-scm.com/downloads)
-> - [yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+### 目录结构（与打字模式相关的部分）
 
-### 手动安装
+```
+scripts/
+  build-typing-dicts.ts      # 语料 → 编码 → 词库 JSON（全拼 + 小鹤双拼）
+  schemes/flypy.ts           # 小鹤双拼编码规则
+  probe-*.cjs                # Playwright 验收探针（键盘 / 深色 / 性能 / 学习模式回归）
+src/
+  corpus/                    # 打字模式语料原文（zh/ en/）
+  pages/TypingLearner/       # 打字模式：index.tsx + Gallery + components
+  resources/typingMaterials.ts   # 素材注册表
+  resources/flypyKeyLabels.ts    # 小鹤键位标注（唯一真源）
+  store/typingMode.ts        # 打字模式状态原子（持久化 + 协调）
+  typings/typing.ts          # 打字模式独立类型线
+public/dicts/zh|en/          # 生成的打字模式词库
+```
 
-1. 在命令行中执行 `git clone https://github.com/RealKai42/qwerty-learner.git` 将项目拉取到本地, 如果不使用 git 可能因为缺少依赖而无法运行
-2. 在命令行中执行 `cd qwerty-learner`，进入项目根目录，执行`yarn install`来下载依赖。
-3. 执行`yarn start`来启动项目，项目默认地址为`http://localhost:5173/`
-4. 在浏览器中打开`http://localhost:5173/`来访问项目。
+---
 
-### 脚本执行
+## 🛠 常用命令
 
-对于 Windows 用户，可以直接执行 [install.ps1](scripts/install.ps1) 脚本，来一键安装依赖并启动项目。
+| 命令 | 说明 |
+| --- | --- |
+| `yarn start` | 启动开发服务器（:5173） |
+| `yarn build` | 构建到 `build/` |
+| `yarn lint` | ESLint 检查 |
+| `yarn prettier` | 全量格式化 |
+| `yarn build:typing-dicts` | 由语料重新生成打字模式词库 |
+| `yarn build:typing-dicts --verify` | 抽检生成结果里的字编码 |
+| `yarn test:e2e` | Playwright 端到端测试 |
 
-1. 打开 powershell，定位到项目根目录中的`scripts`目录
-2. 在命令行中，执行`.\install.ps1`
-3. 等待脚本完成。
+修改语料后请务必执行 `yarn build:typing-dicts` 并提交生成的 `public/dicts/zh|en/*.json`——
+运行时不做拼音推导，词库里 `name` 字段就是烘好的编码串。
 
-> 备注
-> 脚本依赖`winget`来安装 node，仅在 Windows 10 1709（版本 16299）或更高版本上受支持！
+---
 
-对于 MacOS 用户，可以直接执行 [install.sh](scripts/install.sh) 脚本来一键安装依赖并启动项目
+## 🤝 贡献
 
-1. 打开终端，并进入此项目文件夹
-2. 在命令行中执行 `scripts/install.sh`
-3. 等待脚本完成
+- 打字模式相关改动请**不要修改学习模式已有组件的行为**（两条线共用底层 reducer 与统计口径，但页面与状态各自独立）；
+- 新增素材：在 `src/corpus/` 放语料 → 在 `scripts/build-typing-dicts.ts` 的 `MATERIALS` 注册 → 在 `src/resources/typingMaterials.ts` 加一张卡片 → 重跑构建脚本；
+- 新增双拼方案：实现 `scripts/schemes/` 下的编码器，并在 `TYPING_SCHEME_OPTIONS` 中把对应项置为 `available: true`；
+- 原版词库贡献方式仍见 [导入词典](./docs/toBuildDict.md)。
 
-> 此脚本依赖于 `homebrew`，请确保自己电脑上可以执行`brew`命令
+---
 
-## 🏆 荣誉
+## 🏆 上游荣誉
 
-- Github 全球趋势榜上榜项目
+以下为上游 Qwerty Learner 获得的认可，与本源保持一致：
+
+- GitHub 全球趋势榜上榜项目
 - V2EX 全站热搜项目
-- Gitee 全站推荐项目
+- Gitee 全站推荐项目 / Gitee 最有价值开源项目（GVP）
 - [少数派首页推荐](https://sspai.com/post/67535)
 - GitCode 开源摘星计划-毕业项目（[G-Star 计划](https://gitcode.com/g-star)）
-- Gitee 最有价值开源项目（[GVP](https://gitee.com/gvp)）
 
-## 📕 词库列表
+---
 
-- CET-4
-- CET-6
-- GMAT
-- GRE
-- IELTS
-- SAT
-- TOEFL
-- 考研英语
-- 专业四级英语
-- 专业八级英语
-- Coder Dict 程序员常用词
-- 高考
-- 中考
-- 商务英语
-- BEC
+## 📕 学习模式词库列表
+
+- CET-4 / CET-6 / GMAT / GRE / IELTS / SAT / TOEFL
+- 考研英语 / 专业四级 / 专业八级 / 高考 / 中考 / 商务英语 / BEC
 - 人教版英语 3-9 年级
+- Coder Dict 程序员常用词
 - 王陆雅思王听力语料库 [@Saigyouji_WKKun](https://github.com/ggehuliang)
 - 日语常见词、N1 ～ N5 [@xiaojia](https://github.com/wetery)
-- 哈萨克语基础 3000 词(哈拼版) 来源于 [@Elgar](https://github.com/Elgar17) 由 [@Herbert He](https://github.com/HerbertHe) 通过 [哈拼](https://ha-pin.js.org) 技术支持
-
-如果您需要背诵其他词库，欢迎在 Issue 中提出
-
-<br />
-<br />
+- 哈萨克语基础 3000 词（哈拼版）来源于 [@Elgar](https://github.com/Elgar17)，由 [@Herbert He](https://github.com/HerbertHe) 通过 [哈拼](https://ha-pin.js.org) 支持
 
 ## 📗 API 词库
 
-- JavaScript API. [@sdu-gyf](https://github.com/sdu-gyf)
-- Node.js API. [@chrysalis1215](https://github.com/chrysalis1215)
-- Java API. [@darkSheep](https://github.com/darkSheep404)
-- Linux Command. [@归谜](https://github.com/vhxubo)
-- C#: List API [@nidbCN](https://github.com/nidbCN)
+- JavaScript API [@sdu-gyf](https://github.com/sdu-gyf)
+- Node.js API [@chrysalis1215](https://github.com/chrysalis1215)
+- Java API [@darkSheep](https://github.com/darkSheep404)
+- Linux Command [@归谜](https://github.com/vhxubo)
+- C# List API [@nidbCN](https://github.com/nidbCN)
 
-目前 API 相关词库主要依赖于社区贡献，如果您想贡献自己需要的 API 词库，建议参考 [Issue #42](https://github.com/Realkai42/qwerty-learner/issues/40) [pr #67](https://github.com/Realkai42/qwerty-learner/pull/67) 贡献词典。
+---
 
-<br />
-<br />
+## 📜 来源与致谢
 
-## 🎙 功能与建议
+本项目站在很多人的肩膀上：
 
-目前项目处于开发初期，新功能正在持续添加中，如果你对软件有任何功能与建议，欢迎在 Issues 中提出
+- **上游项目**：[Qwerty Learner](https://github.com/RealKai42/qwerty-learner)，感谢原作者 Kaiyi 与全部贡献者；
+- **产品灵感**：[Keybr](https://www.keybr.com/)（按正确率与速度生成训练内容）、[Typing Academy](https://www.typing.academy)（速度 / 正确率的展示）、[react-code-game](https://github.com/webzhd/react-code-game)（API 词库的想法）；
+- **学习模式词库数据**：[kajweb/dict](https://github.com/kajweb/dict)；
+- **发音数据**：[有道词典](https://www.youdao.com/)开放 API；
+- **打字模式中文语料**：字表取自《通用规范汉字表》（2013，国务院发布）；词组参考 CC-CEDICT（CC BY-SA 4.0）并人工审校多音字；成语、短句与专业术语为本项目自撰；古诗文与英文经典为公有领域作品。
 
-项目的进展与未来计划在 [Issue](https://github.com/Realkai42/qwerty-learner/issues/42) 中详细介绍，内部也包含对未来功能的意见征询等，如果对 Qwerty Learner 的未来感兴趣，欢迎参与讨论。
+原始项目的架构与设计，以及全部上游贡献者，见 [上游 Contributors](https://github.com/RealKai42/qwerty-learner/graphs/contributors)。
 
-如果你也喜欢本软件的设计思想，欢迎提交 pr，非常感谢你对我们的支持！
-<br />
-<br />
+## LICENSE
 
-## 🏄‍♂️ 贡献指南
-
-如果您对本项目感兴趣，我们非常欢迎参与到项目的贡献中，我们会尽可能地提供帮助
-
-在贡献前，希望您阅读 [Issue #42](https://github.com/Realkai42/qwerty-learner/issues/42) 了解我们目前的开发计划，我们希望您能参与到"计划中"的工作亦或者 Issue 区 Label 为 "Help Wanted" 的工作，我们也非常欢迎您实现自己的想法。
-
-如果您确定了想要参与的工作，希望在有基本进展后提交 draft pr，我们可以在 draft pr 上进行讨论，也有利于听取其他 collaborator 的意见。
-
-再次感谢您对项目的贡献！🎉
-
-<br />
-
-## ☕️ Buy us a coffe
-
-非常感谢大家使用 Qwerty Learner, 目前该网站由三个人用业余时间在维护，我们希望在未来购买独立的域名(目前使用 vercel 部署)，并购买服务器以方便国内用户访问与云同步存储数据。
-
-如果您喜欢我们软件，非常感谢您对我们未来的支持!
-
-<img  src="https://github.com/Realkai42/qwerty-learner/blob/master/docs/alipay.png" width="200px"/>
-
-## 👨‍💻 Contributors
-
-<a href="https://github.com/Realkai42/qwerty-learner/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Realkai42/qwerty-learner" />
-</a>
-
-## 🎁 大感谢
-
-### 灵感来源
-
-[Keybr](https://www.keybr.com/)
-以算法著称，功能非常完善的打字网站，根据用户输入每个字母的正确率与速度生成“伪英语”来帮助用户集中锻炼个别输入较慢的字母。并可以根据用户的输入记录生成完整的分析报告。
-
-也是本项目的核心灵感来源，Keybr 更多针对英语为母语的用户。在我使用 Keybr 练习打字时，觉得虽然生成的伪英语能够练习输入不顺畅的个别字母，但并不能提升非母语用户对单词的掌握，于是有了本项目。
-
-[Typing Academy](https://www.typing.academy)
-非常优秀的打字练习网站
-其优秀的 UI 风格，以及对速度、正确率的展示极大的影响了本项目的 UI 设计
-
-[react-code-game](https://github.com/webzhd/react-code-game)
-一个非常酷的开源项目，使用 ts 实现，可以在练习打字的同时练习 js 内置 api，项目中添加代码 api 的想法便来源自此项目。
-<br/><br/>
-
-### 开源项目
-
-[React](https://github.com/facebook/react) & [CRA](https://github.com/facebook/create-react-app)
-完整和详细的文档对初学者非常友好，React 系的文档是我目前自学过程中读过最棒的文档，几乎解决使用中大部分问题。非常感谢 React 对开源世界的贡献，为我们搭建了很好的基础，让初学者也能构建非常棒的软件。
-
-[Tailwindcss](https://tailwindcss.com/docs)
-如果没有 tailwind，这个项目还有再拖一阵子，tailwind 的设计思路解决了 css 入门选手对写复杂 css 的恐惧，让新手以一个非常舒适的方式去设计 UI。
-<br/><br/>
-
-### 数据来源
-
-字典数据来自于[kajweb](https://github.com/kajweb/dict)，项目爬取了常见的字典，也是这个项目让我看到了实现本项目的希望。
-
-语音数据来源于[有道词典](https://www.youdao.com/)开放 API，感谢有道的贡献让我们这种小项目也可以用上非常专业的发音资源，感谢有道团队以及考神团队为中国教育与中外交流做出的重要贡献。
-
-JS API 来自于[react-code-game](https://github.com/webzhd/react-code-game) ，感谢项目对 JS API 的爬取与预处理。
-<br/><br/>
-
-### 项目 Icon
-
-感谢[libregd](https://github.com/libregd)提供图标设计，给项目贡献了多个好看的图标设计方案，同时也在项目的进行中提供了设计、建议、未来规划等诸多支持
-
-### 感谢支持
-
-感谢[云谦](https://github.com/sorrycc)、[大圣](https://github.com/shengxinjing) 在项目只有十几个 star 时关注了项目，给项目推进下去的动力。
-
-<br/>
-
-也感谢在项目初期跟我讨论 idea、提供建议并时不时 Push 一下我的朋友们，没有你们这个 idea 可能还得再拖一年（🐶
-
-感谢 [Pear Mini](https://github.com/pearmini) ，最开始跟我讨论 idea 给我项目支持，也是他的项目让我相信即使是一个学生的 idea 实现出来也可以很酷。 他的 [Gossip](https://github.com/pearmini/gossip) 项目完全是 Next Generation Slides 级别的创意！
-
-感谢 [AZ](https://github.com/sailist)，鼓励我把 idea 实现出来（虽然我还是拖了很久），他无与伦比的行动力影响了我。他是一个非常酷的 lib maker，写了很多非常棒的 python 库，例如中文语音识别的框架[ASRFrame](https://github.com/sailist/ASRFrame)
-
-感谢 [Luyu Cheng](https://github.com/chengluyu)，我认识的最酷的前端大佬，给项目与我的前端自学提供了无尽的帮助。在项目初期帮助我进行技术选型，在开发阶段帮我解决技术问题，为我不知道如何实现的 feature 提供技术思路，也为项目贡献了很多非常受欢迎的 feature。
-
-## 🌟 Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/Realkai42/qwerty-learner.svg)](https://starchart.cc/Realkai42/qwerty-learner)
+[GPL-3.0](./LICENSE)。作为衍生作品，本仓库同样以 GPL-3.0 发布。

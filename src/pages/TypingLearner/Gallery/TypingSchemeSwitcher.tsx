@@ -1,14 +1,19 @@
 /**
- * TypingSchemeSwitcher —— 输入方式选择（全拼 / 双拼二级）（spec-20261017-v1 / 03 §4）
+ * TypingSchemeSwitcher —— 输入方式选择（全拼 / 双拼二级 / 打字测速）
+ * （spec-20261017-v1 / 03 §4 + spec-20261017-v2 / 02 SPEED2-01 ~ SPEED2-02）
+ *
+ * 三个互斥选项，内部由两个正交维度表达：
+ *   [全拼]      → track=code, scheme=quanpin
+ *   [双拼 ▾]    → track=code, scheme=flypy（hover 展开小鹤等二级）
+ *   [打字测速]  → track=ime（上屏轨，不管用户输入法）
  *
  * GAL-06：「双拼」既是按钮（点击 = 选中上次用过的双拼方案）又是触发区（hover 展开二级）。
  * GAL-07：置灰项必须可见但不可选中（含 URL 注入，由 atom 校验兜底）。
- * GAL-08：typingSchemeAtom 被外部写入非法值时页面回落 flypy（由 atom 层保证）。
- *
+ * SPEED2-02：高亮互斥——track=ime 时「双拼」不高亮（即使 scheme 仍是 flypy）。
  * 视觉：一级按钮复用 DictTagSwitcher 胶囊样式；二级容器复用 listbox-options。
  */
 
-import type { TypingSchemeId, TypingSchemeIdAll } from '@/typings/typing'
+import type { TypingInputTrack, TypingSchemeId, TypingSchemeIdAll } from '@/typings/typing'
 import { TYPING_SCHEME_OPTIONS } from '@/resources/typingMaterials'
 import { autoUpdate, flip, offset, shift, useClick, useFloating, useHover, useInteractions } from '@floating-ui/react'
 import classNames from 'classnames'
@@ -22,12 +27,21 @@ const PILL_OFF = 'bg-white text-gray-600 dark:bg-gray-800 dark:text-gray-200 hov
 
 export default function TypingSchemeSwitcher({
   scheme,
+  inputTrack,
   onChange,
+  onChangeTrack,
 }: {
   scheme: TypingSchemeId
+  inputTrack: TypingInputTrack
   onChange: (scheme: TypingSchemeId) => void
+  onChangeTrack: (track: TypingInputTrack) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
+
+  // SPEED2-02：选中态互斥——上屏轨下「全拼/双拼」都不高亮
+  const quanpinActive = inputTrack === 'code' && scheme === 'quanpin'
+  const flypyActive = inputTrack === 'code' && scheme === 'flypy'
+  const imeActive = inputTrack === 'ime'
   const [focusIndex, setFocusIndex] = useState(0)
   const listRef = useRef<HTMLDivElement | null>(null)
 
@@ -84,9 +98,12 @@ export default function TypingSchemeSwitcher({
       {/* 全拼：无二级 */}
       <button
         type="button"
-        className={classNames(PILL_BASE, scheme === 'quanpin' ? PILL_ON : PILL_OFF)}
-        onClick={() => onChange('quanpin')}
-        aria-pressed={scheme === 'quanpin'}
+        className={classNames(PILL_BASE, quanpinActive ? PILL_ON : PILL_OFF)}
+        onClick={() => {
+          onChangeTrack('code')
+          onChange('quanpin')
+        }}
+        aria-pressed={quanpinActive}
       >
         全拼
       </button>
@@ -95,16 +112,29 @@ export default function TypingSchemeSwitcher({
       <div ref={refs.setReference} {...getReferenceProps()}>
         <button
           type="button"
-          className={classNames(PILL_BASE, 'flex items-center', scheme === 'flypy' ? PILL_ON : PILL_OFF)}
-          onClick={() => onChange('flypy')}
+          className={classNames(PILL_BASE, 'flex items-center', flypyActive ? PILL_ON : PILL_OFF)}
+          onClick={() => {
+            onChangeTrack('code')
+            onChange('flypy')
+          }}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
-          aria-pressed={scheme === 'flypy'}
+          aria-pressed={flypyActive}
         >
           双拼
           <IconChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
+
+      {/* 打字测速（SPEED2-01）：与全拼/双拼并列的第三项，走上屏轨 */}
+      <button
+        type="button"
+        className={classNames(PILL_BASE, imeActive ? PILL_ON : PILL_OFF)}
+        onClick={() => onChangeTrack('ime')}
+        aria-pressed={imeActive}
+      >
+        打字测速
+      </button>
 
       {isOpen && (
         <div

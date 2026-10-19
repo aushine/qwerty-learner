@@ -5,6 +5,7 @@ import { FriendLinks } from './pages/FriendLinks'
 import MobilePage from './pages/Mobile'
 import TypingPage from './pages/Typing'
 import { isOpenDarkModeAtom } from '@/store'
+import { appModeAtom } from '@/store/typingMode'
 import { Analytics } from '@vercel/analytics/react'
 import 'animate.css'
 import { useAtomValue } from 'jotai'
@@ -20,6 +21,12 @@ const GalleryPage = lazy(() => import('./pages/Gallery-N'))
 const TypingLearnerPage = lazy(() => import('./pages/TypingLearner'))
 const TypingGalleryPage = lazy(() => import('./pages/TypingLearner/Gallery'))
 
+/** 部署 basename（与 BrowserRouter 的 basename 保持同源，ENTRY2-09-1） */
+const BASENAME = REACT_APP_DEPLOY_ENV === 'pages' ? '/qwerty-learner' : ''
+const BASENAME_RE = REACT_APP_DEPLOY_ENV === 'pages' ? /^\/qwerty-learner/ : /^$/
+/** 模式落地重定向只做一次（ENTRY2-09-1：之后手动访问 '/' 不得被弹回） */
+let hasRestoredMode = false
+
 if (process.env.NODE_ENV === 'production') {
   // for prod
   mixpanel.init('bdc492847e9340eeebd53cc35f321691')
@@ -33,6 +40,18 @@ function Root() {
   useEffect(() => {
     darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')
   }, [darkMode])
+
+  // ENTRY2-09-1：首次挂载时按上次的模式落地（模式选择存浏览器缓存，重开不用重新切）。
+  // 仅在 pathname === '/' 时生效一次；用户之后手动访问 '/' 不再被弹走（hasRestoredMode）。
+  const appMode = useAtomValue(appModeAtom)
+  useEffect(() => {
+    if (hasRestoredMode) return
+    hasRestoredMode = true
+    if (appMode === 'typing' && window.location.pathname.replace(BASENAME_RE, '') === '/') {
+      window.history.replaceState(null, '', `${BASENAME}typing`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
 

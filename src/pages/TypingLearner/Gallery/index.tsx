@@ -22,11 +22,12 @@ import {
 } from '@/resources/typingMaterials'
 import {
   typingChapterAtom,
+  typingInputTrackAtom,
   typingLanguageTabAtom,
   typingMaterialIdAtom,
   typingSchemeAtom,
 } from '@/store/typingMode'
-import type { TypingLanguageTab, TypingMaterialResource, TypingSchemeId } from '@/typings/typing'
+import type { TypingInputTrack, TypingLanguageTab, TypingMaterialResource, TypingSchemeId } from '@/typings/typing'
 import groupBy from '@/utils/groupBy'
 import * as ScrollArea from '@radix-ui/react-scroll-area'
 import { useAtom, useSetAtom } from 'jotai'
@@ -51,6 +52,7 @@ export default function TypingGalleryPage() {
 
   const [tab, setTab] = useAtom(typingLanguageTabAtom)
   const [scheme, setScheme] = useAtom(typingSchemeAtom)
+  const [inputTrack, setInputTrack] = useAtom(typingInputTrackAtom)
   const [materialId, setMaterialId] = useAtom(typingMaterialIdAtom)
   const setChapter = useSetAtom(typingChapterAtom)
 
@@ -67,6 +69,7 @@ export default function TypingGalleryPage() {
   useEffect(() => {
     const urlTab = searchParams.get('tab')
     const urlScheme = searchParams.get('scheme')
+    const urlTrack = searchParams.get('track')
     const urlMaterial = searchParams.get('material')
     let changed = false
 
@@ -81,6 +84,10 @@ export default function TypingGalleryPage() {
         setScheme(urlScheme)
         changed = true
       }
+    }
+    if ((urlTrack === 'code' || urlTrack === 'ime') && urlTrack !== inputTrack) {
+      setInputTrack(urlTrack)
+      changed = true
     }
     if (urlMaterial && typingMaterialMap[urlMaterial]) {
       if (urlMaterial !== materialId) {
@@ -108,7 +115,7 @@ export default function TypingGalleryPage() {
   }, [tab])
 
   const syncUrl = useCallback(
-    (params: { tab: TypingLanguageTab; scheme: TypingSchemeId; material: string }) => {
+    (params: { tab: TypingLanguageTab; scheme: TypingSchemeId; material: string; track: TypingInputTrack }) => {
       setSearchParams(params, { replace: true })
     },
     [setSearchParams],
@@ -123,9 +130,9 @@ export default function TypingGalleryPage() {
       if (fallback && fallback.id !== materialId) {
         setMaterialId(fallback.id)
       }
-      syncUrl({ tab: next, scheme, material: fallback?.id ?? materialId })
+      syncUrl({ tab: next, scheme, material: fallback?.id ?? materialId, track: inputTrack })
     },
-    [tab, scheme, materialId, setTab, setChapter, setMaterialId, syncUrl],
+    [tab, scheme, materialId, inputTrack, setTab, setChapter, setMaterialId, syncUrl],
   )
 
   const onChangeScheme = useCallback(
@@ -140,13 +147,24 @@ export default function TypingGalleryPage() {
         const target = typingMaterialMap[swapped] ?? typingMaterialMap[lastMaterialByTab.zh]
         if (target) {
           setMaterialId(target.id)
-          syncUrl({ tab, scheme: next, material: target.id })
+          syncUrl({ tab, scheme: next, material: target.id, track: inputTrack })
           return
         }
       }
-      syncUrl({ tab, scheme: next, material: materialId })
+      syncUrl({ tab, scheme: next, material: materialId, track: inputTrack })
     },
-    [tab, scheme, materialId, setScheme, setChapter, setMaterialId, syncUrl],
+    [tab, scheme, materialId, inputTrack, setScheme, setChapter, setMaterialId, syncUrl],
+  )
+
+  // SPEED2-01：切换输入轨（打字测速 ⇄ 全拼/双拼）。轨与 scheme 正交，不重置 scheme。
+  const onChangeTrack = useCallback(
+    (next: TypingInputTrack) => {
+      if (next === inputTrack) return
+      setInputTrack(next)
+      setChapter(0)
+      syncUrl({ tab, scheme, material: materialId, track: next })
+    },
+    [tab, scheme, materialId, inputTrack, setInputTrack, setChapter, syncUrl],
   )
 
   const onSelectMaterial = useCallback(
@@ -158,14 +176,14 @@ export default function TypingGalleryPage() {
         const target = material.schemeId === 'en' ? scheme : material.schemeId
         setScheme(target)
         setNotice(`已切换到${SCHEME_NAME_MAP[target]}`)
-        syncUrl({ tab, scheme: target, material: material.id })
+        syncUrl({ tab, scheme: target, material: material.id, track: inputTrack })
       } else {
-        syncUrl({ tab, scheme, material: material.id })
+        syncUrl({ tab, scheme, material: material.id, track: inputTrack })
       }
       setMaterialId(material.id)
       navigate('/typing')
     },
-    [tab, scheme, setChapter, setScheme, setMaterialId, navigate, syncUrl],
+    [tab, scheme, inputTrack, setChapter, setScheme, setMaterialId, navigate, syncUrl],
   )
 
   const onBack = useCallback(() => {
@@ -230,7 +248,14 @@ export default function TypingGalleryPage() {
             </div>
 
             {/* 第 ② 级：输入方式（仅中文） */}
-            {tab === 'zh' && <TypingSchemeSwitcher scheme={scheme} onChange={onChangeScheme} />}
+            {tab === 'zh' && (
+              <TypingSchemeSwitcher
+                scheme={scheme}
+                inputTrack={inputTrack}
+                onChange={onChangeScheme}
+                onChangeTrack={onChangeTrack}
+              />
+            )}
 
             {/* 第 ③ + ④ 级：素材分组 + 卡片 */}
             <ScrollArea.Root className="flex-1 overflow-y-auto">

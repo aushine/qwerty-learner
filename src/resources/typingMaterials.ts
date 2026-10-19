@@ -8,7 +8,13 @@
  * 对应 20 个词典 JSON（长文按方案各一份，DATA-04）。
  */
 
-import type { TypingMaterialResource, TypingMaterialType, TypingSchemeId, TypingSchemeIdAll } from '@/typings/typing'
+import type {
+  TypingMaterialResource,
+  TypingMaterialType,
+  TypingSchemeId,
+  TypingSchemeIdAll,
+  TypingWordDifficulty,
+} from '@/typings/typing'
 
 /** 章节计算（DATA-06）：不得复用现有 calcChapterCount（CHAPTER_LENGTH=20 硬约束） */
 export const calcTypingChapterCount = (length: number, chapterSize: number) => Math.max(1, Math.ceil(length / chapterSize))
@@ -222,7 +228,27 @@ export const typingMaterials: TypingMaterialResource[] = [
     length: 12,
     chapterSize: 1,
     chapterCount: calcTypingChapterCount(12, 1),
+    difficulty: 'adv',
+    chapterLabelMode: 'title',
     source: '公有领域古诗文（作者卒年逾 50 年，MAT-06）',
+    license: '公有领域',
+  },
+  {
+    id: 'zh-wenzhang-qingsong',
+    name: '轻松短文',
+    description: '两百字上下的公版笔记小品，适合热身',
+    languageTab: 'zh',
+    schemeId: 'quanpin',
+    materialType: 'wenzhang',
+    category: '中文·输入法练习',
+    tags: ['短文'],
+    url: '/dicts/zh/{scheme}-wenzhang-qingsong.json',
+    length: 10,
+    chapterSize: 1,
+    chapterCount: calcTypingChapterCount(10, 1),
+    difficulty: 'intro',
+    chapterLabelMode: 'title',
+    source: '张岱、苏轼、刘义庆、沈复、蒲松龄等公有领域古典小品',
     license: '公有领域',
   },
   {
@@ -238,6 +264,8 @@ export const typingMaterials: TypingMaterialResource[] = [
     length: 10,
     chapterSize: 1,
     chapterCount: calcTypingChapterCount(10, 1),
+    difficulty: 'mid',
+    chapterLabelMode: 'title',
     source: '朱自清、鲁迅、许地山等公版作品（卒年 + 50 年判定，MAT-06）',
     license: '公有领域',
   },
@@ -252,9 +280,11 @@ export const typingMaterials: TypingMaterialResource[] = [
     category: '文章练习',
     tags: ['段落'],
     url: '/dicts/en/para.json',
-    length: 20,
+    length: 25,
     chapterSize: 1,
-    chapterCount: calcTypingChapterCount(20, 1),
+    chapterCount: calcTypingChapterCount(25, 1),
+    difficulty: 'intro',
+    chapterLabelMode: 'title',
     source: '本项目原创英文段落',
     license: '本项目自撰，仅供个人学习使用',
   },
@@ -271,8 +301,28 @@ export const typingMaterials: TypingMaterialResource[] = [
     length: 10,
     chapterSize: 1,
     chapterCount: calcTypingChapterCount(10, 1),
+    difficulty: 'mid',
+    chapterLabelMode: 'title',
     source: '本项目原创英文文章',
     license: '本项目自撰，仅供个人学习使用',
+  },
+  {
+    id: 'en-article-classic',
+    name: 'English Classics',
+    description: '培根、爱默生、梭罗等公版英文原文',
+    languageTab: 'en',
+    schemeId: 'en',
+    materialType: 'classic',
+    category: '文章练习',
+    tags: ['经典'],
+    url: '/dicts/en/classic.json',
+    length: 6,
+    chapterSize: 1,
+    chapterCount: calcTypingChapterCount(6, 1),
+    difficulty: 'adv',
+    chapterLabelMode: 'title',
+    source: 'Bacon / Emerson / Thoreau / Swift / Addison / Lamb，原文均为公有领域',
+    license: '公有领域',
   },
 ]
 
@@ -325,7 +375,18 @@ export const MATERIAL_TYPE_LABELS: Record<TypingMaterialType, string> = {
   wenzhang: '文章',
   paragraph: '段落',
   article: '文章',
+  classic: '经典',
 }
+
+/** 难度档 → 中文标签（03 GAL2-09） */
+export const DIFFICULTY_LABELS: Record<TypingWordDifficulty, string> = {
+  intro: '入门',
+  mid: '进阶',
+  adv: '挑战',
+}
+
+/** 难度档 → 胶囊顺序（03 GAL2-13：按难度升序） */
+export const DIFFICULTY_ORDER: TypingWordDifficulty[] = ['intro', 'mid', 'adv']
 
 /** 素材类型 → 数量单位（MAT-01 元信息行用，如「500 字 · 50 章 · 全拼」） */
 export const MATERIAL_UNIT_LABELS: Record<TypingMaterialType, string> = {
@@ -336,6 +397,7 @@ export const MATERIAL_UNIT_LABELS: Record<TypingMaterialType, string> = {
   wenzhang: '篇',
   paragraph: '段',
   article: '篇',
+  classic: '篇',
 }
 
 /**
@@ -350,6 +412,7 @@ export const MATERIAL_CHAPTER_LABELS: Record<TypingMaterialType, string> = {
   wenzhang: '段',
   paragraph: '段',
   article: '段',
+  classic: '段',
 }
 
 /**
@@ -391,11 +454,14 @@ export function resolveMaterialId(id: string, scheme: TypingSchemeId): string {
     const fallback = id.replace(/^zh-(quanpin|flypy)-/, `zh-${material.fallbackSchemeId}-`)
     if (typingMaterialMap[fallback]) return fallback
   }
+  // 该素材在另一方案下没有同内容卡片（如「常用 200 句」只有小鹤版）：
+  // 保留当前素材 id 原样返回（词典文件仍然存在，只是编码不属于当前方案），
+  // 🔴 绝不能回落到默认素材——那会让用户「选了成语却看到单字」。
   if (!warnedMaterialIds.has(`resolve:${id}:${scheme}`)) {
     warnedMaterialIds.add(`resolve:${id}:${scheme}`)
-    console.warn(`[typing] 素材 ${id} 在方案 ${scheme} 下无对应文件，已回落 ${DEFAULT_TYPING_MATERIAL_ID}`)
+    console.warn(`[typing] 素材 ${id} 在方案 ${scheme} 下没有同内容卡片，保留原素材`)
   }
-  return DEFAULT_TYPING_MATERIAL_ID
+  return id
 }
 
 /**

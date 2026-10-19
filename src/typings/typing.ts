@@ -21,7 +21,18 @@ export type TypingSchemeId = 'quanpin' | 'flypy'
 export type TypingSchemeIdAll = 'quanpin' | 'flypy' | 'mspy' | 'zrm' | 'sogou'
 
 /** 素材类型（决定落在哪个胶囊下，03 §5） */
-export type TypingMaterialType = 'zi' | 'ci' | 'chengyu' | 'duanju' | 'wenzhang' | 'paragraph' | 'article'
+export type TypingMaterialType = 'zi' | 'ci' | 'chengyu' | 'duanju' | 'wenzhang' | 'paragraph' | 'article' | 'classic'
+
+/**
+ * 输入轨（spec-20261017-v2 / 02 SPEED2-01）
+ * - `code`：对码轨（全拼 / 双拼），校验击键序列
+ * - `ime`：上屏轨（打字测速），校验最终上屏文本
+ * 🔴 与 `schemeId` 正交，不得合并为同一个枚举（SPEED2-01-1）。
+ */
+export type TypingInputTrack = 'code' | 'ime'
+
+/** 素材内容难度（`03` GAL2-09：人工定级，仅文章类） */
+export type TypingWordDifficulty = 'intro' | 'mid' | 'adv'
 
 /**
  * 逐字对齐单元（打字模式题面「拼音行 / 汉字行」一一对应的数据来源）。
@@ -60,6 +71,12 @@ export type TypingWord = {
    * `units.length === notation.length`，用于「拼音行 / 汉字行」交替渲染与逐字进度。
    */
   units?: TypingUnit[]
+  /** 🆕 篇名（仅文章类，DATA2-01） */
+  title?: string
+  /** 🆕 作者（仅文章类，可缺省） */
+  author?: string
+  /** 🆕 难度档（仅文章类） */
+  difficulty?: TypingWordDifficulty
 }
 
 /** 素材注册表条目（05 DATA-05） */
@@ -98,4 +115,8 @@ export type TypingMaterialResource = {
   license: string
   /** 若该素材只在其他方案下有文件，指向可用方案（GAL-12 回落）。本批次 16 个素材的两方案文件均已构建，故不触发 */
   fallbackSchemeId?: TypingSchemeId
+  /** 🆕 素材难度档（仅文章类，DATA2-03） */
+  difficulty?: TypingWordDifficulty
+  /** 🆕 章节标签模式：`title` = 显示篇名（文章类），`chapter` = 第 N 章（其余） */
+  chapterLabelMode?: 'chapter' | 'title'
 }
