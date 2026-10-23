@@ -219,3 +219,100 @@ body,
     background-position: 0% 50%;
   }
 }
+
+/* ==========================================================================
+   Electron 桌面端自绘标题栏
+   仅在打包成 exe / 桌面端运行时渲染（由 window.desktopWindow 判断），
+   静态 Web 部署下不会出现这些节点，样式存在也无副作用。
+   ========================================================================== */
+
+/* 标题栏整体可拖动窗口 */
+.app-titlebar {
+  -webkit-app-region: drag;
+}
+
+/* 按钮区域必须排除拖动，否则点击会被系统当作拖拽窗口 */
+.app-titlebar-button {
+  -webkit-app-region: no-drag;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: default;
+  outline: none;
+}
+
+.app-titlebar-button:focus-visible {
+  outline: 2px solid rgb(129 140 248 / 0.7);
+  outline-offset: -2px;
+}
+
+/* 桌面端：让根容器改为纵向 flex，标题栏固定高度、内容区自适应剩余空间，
+   避免 calc(100vh - 32px) 与滚动条互相干扰产生多余滚动条 */
+html.desktop-shell,
+html.desktop-shell body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+html.desktop-shell #root {
+  height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  /* 内容区超出时在本层滚动，避免被裁切后又无法滚动 */
+  overflow: hidden;
+  /* 页面内部也裁出圆角：即使系统未绘制 DWM 圆角，
+     视觉上窗口依然是圆角（最大化时通过 .is-maximized 归零） */
+  border-radius: 14px;
+  /* 背景色显式跟随主题（不用 @apply dark: 变体，避免产物里选择器异常） */
+  background-color: #faf9ff;
+}
+
+html.desktop-shell.dark #root {
+  background-color: #111827;
+}
+
+/* 最大化时去掉圆角与描边，避免贴边时露出一圈缝隙 */
+html.desktop-shell.is-maximized #root {
+  border-radius: 0;
+  border-color: transparent;
+}
+
+/* 桌面端内容区滚动条：细圆角、半透明、悬浮式（不挤占布局宽度） */
+html.desktop-shell main {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 0.18) transparent;
+}
+
+html.desktop-shell.dark main {
+  scrollbar-color: rgb(255 255 255 / 0.2) transparent;
+}
+
+html.desktop-shell main::-webkit-scrollbar {
+  width: 8px;
+}
+
+html.desktop-shell main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.desktop-shell main::-webkit-scrollbar-thumb {
+  background-color: rgb(0 0 0 / 0.15);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: content-box;
+}
+
+html.desktop-shell main::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(0 0 0 / 0.28);
+}
+
+html.desktop-shell.dark main::-webkit-scrollbar-thumb {
+  background-color: rgb(255 255 255 / 0.18);
+}
+
+html.desktop-shell.dark main::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(255 255 255 / 0.3);
+}

@@ -55,19 +55,27 @@ type MaterialDef = {
 const MATERIALS: MaterialDef[] = [
   // ── 中文 · 全拼（5）──
   { id: 'zh-quanpin-zi-500', corpus: 'zh/zi-500.txt', kind: 'zi', scheme: 'quanpin', out: 'zh/quanpin-zi-500.json' },
+  { id: 'zh-quanpin-zi-1000', corpus: 'zh/zi-1000.txt', kind: 'zi', scheme: 'quanpin', out: 'zh/quanpin-zi-1000.json' },
   { id: 'zh-quanpin-zi-3500', corpus: 'zh/zi-3500.txt', kind: 'zi', scheme: 'quanpin', out: 'zh/quanpin-zi-3500.json' },
+  { id: 'zh-quanpin-zi-3000-erji', corpus: 'zh/zi-3000-erji.txt', kind: 'zi', scheme: 'quanpin', out: 'zh/quanpin-zi-3000-erji.json' },
   { id: 'zh-quanpin-ci-1000', corpus: 'zh/ci-1000.txt', kind: 'ci', scheme: 'quanpin', out: 'zh/quanpin-ci-1000.json' },
+  { id: 'zh-quanpin-ci-3000', corpus: 'zh/ci-3000.txt', kind: 'ci', scheme: 'quanpin', out: 'zh/quanpin-ci-3000.json' },
   { id: 'zh-quanpin-ci-medical', corpus: 'zh/ci-medical.txt', kind: 'ci', scheme: 'quanpin', out: 'zh/quanpin-ci-medical.json' },
   { id: 'zh-quanpin-ci-computer', corpus: 'zh/ci-computer.txt', kind: 'ci', scheme: 'quanpin', out: 'zh/quanpin-ci-computer.json' },
+  { id: 'zh-quanpin-chengyu-500', corpus: 'zh/chengyu-500.txt', kind: 'chengyu', scheme: 'quanpin', out: 'zh/quanpin-chengyu-500.json' },
+  { id: 'zh-quanpin-chengyu-1000', corpus: 'zh/chengyu-1000.txt', kind: 'chengyu', scheme: 'quanpin', out: 'zh/quanpin-chengyu-1000.json' },
   // ── 中文 · 小鹤双拼（7 + 长文/专业词双方案）──
   { id: 'zh-flypy-zi-500', corpus: 'zh/zi-500.txt', kind: 'zi', scheme: 'flypy', out: 'zh/flypy-zi-500.json' },
+  { id: 'zh-flypy-zi-1000', corpus: 'zh/zi-1000.txt', kind: 'zi', scheme: 'flypy', out: 'zh/flypy-zi-1000.json' },
   { id: 'zh-flypy-zi-3500', corpus: 'zh/zi-3500.txt', kind: 'zi', scheme: 'flypy', out: 'zh/flypy-zi-3500.json' },
+  { id: 'zh-flypy-zi-3000-erji', corpus: 'zh/zi-3000-erji.txt', kind: 'zi', scheme: 'flypy', out: 'zh/flypy-zi-3000-erji.json' },
   { id: 'zh-flypy-ci-1000', corpus: 'zh/ci-1000.txt', kind: 'ci', scheme: 'flypy', out: 'zh/flypy-ci-1000.json' },
+  { id: 'zh-flypy-ci-3000', corpus: 'zh/ci-3000.txt', kind: 'ci', scheme: 'flypy', out: 'zh/flypy-ci-3000.json' },
   { id: 'zh-flypy-chengyu-500', corpus: 'zh/chengyu-500.txt', kind: 'chengyu', scheme: 'flypy', out: 'zh/flypy-chengyu-500.json' },
+  { id: 'zh-flypy-chengyu-1000', corpus: 'zh/chengyu-1000.txt', kind: 'chengyu', scheme: 'flypy', out: 'zh/flypy-chengyu-1000.json' },
   { id: 'zh-flypy-duanju-200', corpus: 'zh/duanju-200.txt', kind: 'duanju', scheme: 'flypy', out: 'zh/flypy-duanju-200.json' },
   { id: 'zh-flypy-ci-medical', corpus: 'zh/ci-medical.txt', kind: 'ci', scheme: 'flypy', out: 'zh/flypy-ci-medical.json' },
   { id: 'zh-flypy-ci-computer', corpus: 'zh/ci-computer.txt', kind: 'ci', scheme: 'flypy', out: 'zh/flypy-ci-computer.json' },
-  { id: 'zh-quanpin-chengyu-500', corpus: 'zh/chengyu-500.txt', kind: 'chengyu', scheme: 'quanpin', out: 'zh/quanpin-chengyu-500.json' },
   { id: 'zh-quanpin-duanju-200', corpus: 'zh/duanju-200.txt', kind: 'duanju', scheme: 'quanpin', out: 'zh/quanpin-duanju-200.json' },
   // ── 中文 · 长文（按方案各一份，DATA-04）──
   { id: 'zh-wenzhang-shi', corpus: 'zh/wenzhang-shi.txt', kind: 'wenzhang', scheme: 'quanpin', out: 'zh/quanpin-wenzhang-shi.json' },
@@ -114,6 +122,8 @@ const PY_CORRECTIONS: Record<string, string[]> = {
   同行: ['tong', 'hang'],
   会计: ['kuai', 'ji'],
   头发: ['tou', 'fa'],
+  所长: ['suo', 'zhang'],
+  重命名: ['chong', 'ming', 'ming'],
   发现: ['fa', 'xian'],
   都会: ['du', 'hui'],
   大意: ['da', 'yi'],
@@ -126,11 +136,17 @@ const PY_CORRECTIONS: Record<string, string[]> = {
   沐浴: ['mu', 'yu'],
   模样: ['mu', 'yang'],
   比赛: ['bi', 'sai'],
+  数不胜数: ['shu', 'bu', 'sheng', 'shu'],
 }
 
 const MAX_ACCEPTED = 8
 
-const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/
+/**
+ * CJK 判定（含扩展 A U+3400-4DBF、URO、兼容区与扩展 B~H U+20000-3134A：
+ * 《通用规范汉字表》二级字表含 3 个扩展 B/C 汉字，pinyin-pro 可正常编码，
+ * 早期正则漏掉它们会导致 units 对齐失败）。
+ */
+const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff\u{20000}-\u{3134a}]/u
 const PY_SYLLABLE_RE = /^[a-z]+$/
 
 function isCjk(ch: string): boolean {

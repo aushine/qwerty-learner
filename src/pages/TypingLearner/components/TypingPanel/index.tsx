@@ -73,11 +73,17 @@ export default function TypingPanel({
   material,
   scheme,
   onWordCompleted,
+  restartNonce,
+  onOneLifeViolation,
 }: {
   material: TypingMaterialResource
   scheme: 'quanpin' | 'flypy' | 'en'
   /** 完成一题时上报计量单位数（LAY-09：中文=汉字数，英语=单词数） */
   onWordCompleted?: (units: number) => void
+  /** 一命模式整章重开信号（spec-20261020-v1 / 02 REQ-205）：变化即复位题面状态与热路径 ref */
+  restartNonce?: number
+  /** 一命模式开启时打错一次的回调（页面层执行 REPEAT_CHAPTER 整章重开） */
+  onOneLifeViolation?: () => void
 }) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { state, dispatch } = useContext(TypingContext)!
@@ -130,6 +136,16 @@ export default function TypingPanel({
   useEffect(() => {
     resetWordState(displayWord.length)
   }, [displayWord, resetWordState])
+
+  // 一命模式整章重开（spec-20261020-v1 / 02 REQ-205）：REPEAT_CHAPTER 不会触达本组件的
+  // 局部 state（不洗牌时 currentWord 引用不变），由 restartNonce 显式驱动复位。
+  useEffect(() => {
+    if (restartNonce === undefined) return
+    resetWordState(displayWord.length)
+    setCurrentWordExerciseCount(0)
+    setShowTipAlert(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restartNonce])
 
   // ---------- 输入入口（InputHandler 与键盘点击共用） ----------
   const appendChar = useCallback(
@@ -202,6 +218,13 @@ export default function TypingPanel({
         type: TypingStateActionType.REPORT_WRONG_WORD,
         payload: { letterMistake: JSON.parse(JSON.stringify(letterMistakeRef.current)) },
       })
+
+      // 一命模式（spec-20261020-v1 / 02 REQ-202/204）：打错即整章重开，跳过「300ms 后重打
+      // 当前词」的处置窗口；复位由页面层 REPEAT_CHAPTER + restartNonce 完成（REQ-205）。
+      if (onOneLifeViolation) {
+        onOneLifeViolation()
+        return
+      }
 
       if (typingChapter === 0 && state.chapterData.index === 0 && wrongCountRef.current >= 3) {
         setShowTipAlert(true)

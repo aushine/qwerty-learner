@@ -84,6 +84,14 @@ export const typingSchemeAtom = persistedAtom<TypingSchemeId>('typingScheme', 'q
  */
 export const typingInputTrackAtom = persistedAtom<TypingInputTrack>('typingInputTrack', 'code', isInputTrack)
 
+/**
+ * 游戏中心输入轨（spec-20261019-v1 / 01 REQ-04）：
+ * 每个玩法提供「对码轨 / 上屏轨」切换，**默认对码轨**。
+ * 与打字模式的 typingInputTrack 相互独立——游戏默认对码轨，
+ * 不继承用户上次在打字测速里的 ime 选择；两轨成绩分开记录（gameRecords.track）。
+ */
+export const typingGameTrackAtom = persistedAtom<TypingInputTrack>('typingGameTrack', 'code', isInputTrack)
+
 /** 当前素材 id（ACC-03-14：非法值回落 zh-quanpin-zi-500） */
 export const typingMaterialIdAtom = persistedAtom<string>(
   'typingMaterialId',
@@ -99,6 +107,14 @@ export const typingKeyboardCollapsedAtom = persistedAtom<boolean>('typingKeyboar
 
 /** 汉字提示行显隐（KEEP-13：默认可见） */
 export const typingIsShowHanziAtom = persistedAtom<boolean>('typingIsShowHanzi', true, (v): v is boolean => typeof v === 'boolean')
+
+/**
+ * 一命模式用户覆盖值（spec-20261020-v1 / 02 REQ-206）：
+ * `null` = 未表达过偏好 → 按素材类型取默认值（defaultOneLife）；
+ * `true / false` = 用户手动切换过的值 → 跨会话、跨素材保持。
+ */
+const isOneLifeOverride = (v: unknown): v is boolean | null => v === null || typeof v === 'boolean'
+export const typingOneLifeOverrideAtom = persistedAtom<boolean | null>('typingOneLifeOverride', null, isOneLifeOverride)
 
 // ── 以下为非持久化协调 atom（MODE-06） ──
 

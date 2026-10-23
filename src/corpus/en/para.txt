@@ -1,5 +1,6 @@
-# English Paragraphs (25 段，每段 60-150 词；前 19 段为本项目自撰原创，后 6 段亦为自撰)
+# English Paragraphs (40 段，每段 60-150 词；本项目自撰原创)
 # 格式：`### 标题` + `@难度` + 正文；块间空行分隔
+# 2026-10 扩充：新增 15 段（备份/收件箱/会议/骑行/图书馆/说明书/时间块/收工仪式/应急金/拒绝/朗读校对/演讲/消费/求助/急救）
 # 英语素材 name = 段落原文，逐字符练习（上屏轨）
 ### A Good Desk Setup
 @intro
@@ -100,3 +101,63 @@ A journal does not need to be profound. Three lines at the end of the day are en
 ### Learning to Wait
 @intro
 Waiting is a skill, and like most skills it improves with practice. A queue, a slow download, a delayed train: these moments used to be filled with impatience, and now they can be filled with nothing at all. Standing still without reaching for a phone is uncomfortable at first, then restful. The mind wanders, and the wandering is useful. Some of the best ideas arrive during the minutes we used to spend refreshing a screen. Waiting well is a small act of resistance against a culture of instant response.
+
+### Back Up Your Work
+@intro
+A hard drive does not warn anyone before it fails, and a stolen laptop takes its data with it. The rule is simple: important files should exist in three places, the working copy, a local backup, and one somewhere else entirely. Cloud services handle the third place automatically, but only if they are set up before the loss, not after. A backup that has never been tested is a hope, not a plan. Restore a random file every few months, and the day something breaks, the recovery takes minutes instead of tears.
+
+### Empty the Inbox
+@intro
+An inbox is a to-do list that other people write on. Treating every message as urgent leaves no time for real work. A simple habit fixes most of the problem: read each message once, and decide immediately whether it needs action, can be answered in two minutes, or should be archived. Newsletters and notifications can wait for a scheduled slot. The goal is not zero unread mail; it is that the inbox stops being a source of low-grade anxiety.
+
+### Meetings Need Agendas
+@intro
+Most bad meetings share one root cause: nobody wrote down the purpose in advance. An agenda is not bureaucracy; it is a contract that says what will be discussed and what should be true when everyone leaves. A meeting without an agenda tends to wander, and the people who talk longest end up deciding the most. A short note with three items and a desired outcome saves more time than any other piece of office hygiene.
+
+### Ride a Bike
+@intro
+A bicycle is the fastest way through a city at rush hour and the cheapest way to stay fit. It costs nothing to charge, nothing to park, and almost nothing to repair. The rider arrives alert rather than frustrated, having already exercised without scheduling it. Rain and hills are real obstacles, but a pannier and a lower gear solve most of them. The bike rewards the short trip that a car makes expensive.
+
+### Visit the Library
+@intro
+The library is one of the last places where access is free and nobody is selling anything. Books, magazines, films, quiet desks, and sometimes tools are all available with a card. Librarians answer questions that a search engine cannot, because they ask what the person actually needs. Browsing shelves finds books that no recommendation algorithm would have surfaced. A library card is the best-value subscription in town.
+
+### Read the Manual
+@intro
+Nobody reads manuals anymore, and then everyone asks the same questions in forums. The manual exists because someone already answered the question, in order, with pictures. Skimming it for ten minutes before a project saves an hour of trial and error, and occasionally saves the equipment. Documentation feels slow, but it is faster than learning by breaking. The person who reads the manual once teaches everyone else.
+
+### Time Blocking
+@intro
+A to-do list says what to do; a calendar says when. Time blocking assigns each task a slot, which exposes the truth that a day holds fewer hours than a list implies. The method feels rigid at first, but the rigidity is the point: decisions made in advance are cheaper than decisions made while tired. Leave gaps for the unexpected, and treat a missed block as data rather than failure.
+
+### The Shutdown Ritual
+@intro
+Work has no natural edge when the office is also the living room. A short closing ritual creates one: write tomorrow's first task, close the tabs, and say out loud that the day is done. The mind keeps spinning on unfinished business until it is told, clearly, that the business will be there tomorrow. Five minutes of closure buys an evening that is actually rest.
+
+### Keep an Emergency Fund
+@intro
+An emergency fund is money that exists so that bad news stays bad rather than becoming a disaster. Three to six months of expenses in a boring account is enough for most people. The fund is not an investment; its job is to be boring and available. It prevents the car repair from going on a credit card and the job loss from becoming an eviction. Building it is slow, and that is fine.
+
+### Learn to Say No
+@intro
+Every yes is a no to something else, usually without noticing. People who never decline end up busy and resentful, and the work they accepted arrives late and tired. A refusal can be kind and short: explain the limit, offer an alternative if one exists, and do not apologize for having priorities. Saying no to the small things protects the yes that matters.
+
+### Proofread Out Loud
+@intro
+Eyes skim what the mind expects to see, which is why errors survive silent review. Reading a text aloud forces every word to pass through the mouth, where the wrong word sounds wrong. Stumbling is a signal, not embarrassment. A second pass on paper, with a finger tracking each line, catches what the screen hides. Ten minutes of reading aloud saves the embarrassment of a typo in front of everyone.
+
+### Practice Public Speaking
+@intro
+Speaking to a room is a skill, not a personality trait, and it responds to practice like any other. The first talks are rough: the voice shakes, the notes shake, and the clock seems broken. Rehearsing aloud, slowing down, and pausing instead of filling silence improve a talk more than any slide design. Most audiences want the speaker to succeed, and they forgive nerves far more readily than the speaker does.
+
+### Buy Less, Choose Well
+@intro
+Cheap purchases are rarely cheap. The ten-dollar bag that splits in a month cost more than the fifty-dollar bag that lasts five years, once the replacement and the annoyance are counted. Waiting a week before buying anything over a small threshold kills most impulse purchases; the desire simply fades. Owning fewer, better things means less clutter, less cleaning, and less money spent on storage.
+
+### Ask for Help Early
+@intro
+People wait too long to ask for help, usually because asking feels like admitting failure. The opposite is true: a problem raised on day one is a question, and the same problem raised in week six is a crisis. The person who asks early gets advice; the person who asks late gets an intervention. Nobody remembers who asked, but everybody remembers the deadline that slipped in silence.
+
+### Learn Basic First Aid
+@intro
+A single first aid course teaches what to do in the minutes before professionals arrive: check the scene, call for help, stop bleeding, and start compressions if a heart has stopped. The skills fade without practice, so a refresher every couple of years keeps them sharp. Everyone hopes never to use them. The confidence of knowing what to do, and what not to do, is worth a weekend.

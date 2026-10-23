@@ -18,12 +18,13 @@ import { useConfetti } from '@/pages/Typing/hooks/useConfetti'
 import { useWordList } from '@/pages/Typing/hooks/useWordList'
 import StartButton from '@/pages/Typing/components/StartButton'
 import { TypingContext, TypingStateActionType, initialState, typingReducer } from '@/pages/Typing/store'
-import { findMaterial, resolveMaterialId, resolveMaterialUrl } from '@/resources/typingMaterials'
+import { defaultOneLife, findMaterial, resolveMaterialId, resolveMaterialUrl } from '@/resources/typingMaterials'
 import {
   pendingModeSwitchAtom,
   typingChapterAtom,
   typingInputTrackAtom,
   typingMaterialIdAtom,
+  typingOneLifeOverrideAtom,
   typingPausedBySwitcherAtom,
   typingPracticeActiveAtom,
   typingSchemeAtom,
@@ -31,6 +32,7 @@ import {
 import { randomConfigAtom } from '@/store'
 import { IsDesktop, isLegal } from '@/utils'
 import { useSaveTypingChapterRecord } from './hooks/useTypingRecords'
+import OneLifeSwitcher from './components/OneLifeSwitcher'
 import TypingMaterialButton from './components/TypingMaterialButton'
 import TypingPanel from './components/TypingPanel'
 import TypingResultScreen from './components/TypingResultScreen'
@@ -53,6 +55,8 @@ const TypingLearnerPage: React.FC = () => {
   const [, setImeSubmitted] = useState(0)
   // 非阻塞提示（SPEED2-11：标点格式错误等）
   const [notice, setNotice] = useState<string | undefined>(undefined)
+  // 一命模式（spec-20261020-v1 / 02）：整章重开信号（上屏轨/对码轨面板据此复位局部状态）
+  const [restartNonce, setRestartNonce] = useState(0)
 
   useEffect(() => {
     if (!notice) return
@@ -129,9 +133,13 @@ const TypingLearnerPage: React.FC = () => {
   useEffect(() => {
     if (!state.isTyping) {
       const onKeyDown = (e: KeyboardEvent) => {
-        // 模式切换菜单打开时（ENTRY-07 键盘可达），不应误触发「开始练习」把焦点抢到
-        // 隐藏 input，否则键盘无法在 /typing 上完成模式切换（ACC-06-32）。
-        if (document.querySelector('[role="menu"]')) return
+        // 模式切换按钮（2026-10-21 改版：原 hover 浮层已改为单个切换按钮）聚焦时，
+        // Space/Enter 会激活该按钮完成模式切换，不应再误触发「开始练习」抢焦点，
+        // 否则键盘无法在 /typing 上完成模式切换（ACC-06-32 闭环的继任约束）。
+        if (e.key === ' ' || e.key === 'Enter') {
+          const active = document.activeElement as HTMLElement | null
+          if (active?.closest('[data-testid="mode-toggle"]')) return
+        }
         if (!isLoading && e.key !== 'Enter' && (isLegal(e.key) || e.key === ' ') && !e.altKey && !e.ctrlKey && !e.metaKey) {
           e.preventDefault()
           dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: true })
@@ -188,11 +196,14 @@ const TypingLearnerPage: React.FC = () => {
   }, [pendingMode, pausedBySwitcher, dispatch, setPausedBySwitcher])
 
   /**
-   * 上屏轨完成一篇：先存档再 FINISH_CHAPTER（与对码轨同口径，dict = 素材 id）。
-   * 打字测速以「整篇」为一题，所以不存在 NEXT_WORD。
+   * 上屏轨完成一篇：FINISH_CHAPTER 后由下方存档 effect 写 chapterRecord
+   * （dict = 素材 id，与对码轨同口径）。打字测速以「整篇」为一题，不存在 NEXT_WORD。
+   *
+   * 🔴 不得派发 SET_IS_SAVING_RECORD(true)：上屏轨没有逐词记录的异步保存流程
+   * （对码轨靠 saveWordRecord 完成后复位该标记），置 true 后无人复位会让
+   * `isFinished && !isSavingRecord` 的存档条件永久不成立 → 打完不写记录。
    */
   const handleUpstreamFinished = useCallback(() => {
-    dispatch({ type: TypingStateActionType.SET_IS_SAVING_RECORD, payload: true })
     dispatch({ type: TypingStateActionType.FINISH_CHAPTER })
   }, [dispatch])
 
@@ -200,6 +211,24 @@ const TypingLearnerPage: React.FC = () => {
   const onUpstreamFirstKey = useCallback(() => {
     if (!state.isTyping) dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: true })
   }, [state.isTyping, dispatch])
+
+  // ── 一命模式（spec-20261020-v1 / 02） ──
+  const [oneLifeOverride, setOneLifeOverride] = useAtom(typingOneLifeOverrideAtom)
+  // 生效值 = 用户覆盖 ?? 素材类型默认（REQ-203/206；素材切换时动态重算）
+  const oneLife = oneLifeOverride ?? defaultOneLife(material.materialType)
+
+  /**
+   * 整章重开（REQ-205）：章节/计时/统计归零（复用 REPEAT_CHAPTER，不新增语义重复动作）、
+   * isTyping 保持 true（不停顿）、不出结算不写记录、不消耗循环计数；
+   * restartNonce 驱动上屏轨/对码轨面板复位局部状态；洗牌按当前 randomConfig。
+   */
+  const restartChapterForOneLife = useCallback(() => {
+    dispatch({ type: TypingStateActionType.REPEAT_CHAPTER, shouldShuffle: randomConfig.isOpen })
+    setRestartNonce((n) => n + 1)
+    setNotice('一命模式：打错重来')
+  }, [dispatch, randomConfig.isOpen])
+
+  const onOneLifeViolation = oneLife ? restartChapterForOneLife : undefined
 
   useConfetti(state.isFinished)
 
@@ -231,6 +260,8 @@ const TypingLearnerPage: React.FC = () => {
       <Layout>
         <Header>
           <TypingMaterialButton />
+          {/* 一命模式开关（spec-20261020-v1 / 02 REQ-201）：StartButton 左侧，仅打字模式 */}
+          <OneLifeSwitcher value={oneLife} onChange={setOneLifeOverride} />
           <StartButton isLoading={isLoading} />
           <TypingSwitcher />
         </Header>
@@ -267,6 +298,8 @@ const TypingLearnerPage: React.FC = () => {
                       }}
                       onFinished={handleUpstreamFinished}
                       onPunctError={() => setNotice('中文标点请用全角（，。？），当前被判为标点格式错误')}
+                      restartNonce={restartNonce}
+                      onOneLifeViolation={onOneLifeViolation}
                     />
                   ) : null
                 ) : (
@@ -274,6 +307,8 @@ const TypingLearnerPage: React.FC = () => {
                     material={material}
                     scheme={material.schemeId === 'en' ? 'en' : scheme}
                     onWordCompleted={(n) => setUnitsDone((old) => old + n)}
+                    restartNonce={restartNonce}
+                    onOneLifeViolation={onOneLifeViolation}
                   />
                 ))
               )}

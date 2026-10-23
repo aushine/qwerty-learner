@@ -1,0 +1,48 @@
+# Electron 打包配置（与静态包 / Tauri 方案共存）
+# 打包：yarn dist:electron（内部会先执行 yarn build，产物输出到 release-electron/）
+appId: com.litongjava.qwerty.learner
+productName: qwerty-learner
+copyright: Copyright © 2026 qwerty-learner
+
+directories:
+  # Electron 安装包/免安装 exe 输出目录；Vite 静态产物仍输出到 build/，两套方案互不影响
+  output: dist
+  # 中间产物（解包目录等）放到 dist 下，不污染项目根目录
+  buildResources: build-resources
+
+# 复用本地已解包的 Electron 发行版（由 scripts/prepare-electron-dist.cjs 生成），
+# 绕开 electron-builder 在 Windows 上解压后重命名临时目录会报 EPERM 的问题。
+electronDist: .electron-dist-cache
+
+# 只打包运行必需的文件：Electron 主进程 + Vite 静态产物 + package.json
+# 前端依赖已在 devDependencies 中（构建期用），且已由 Vite 全部打进 build/，
+# 主进程仅用 Node 内置模块，因此 package.json 的 dependencies 为空，不会收集 node_modules。
+files:
+  - package.json
+  - electron/**/*
+  - build/**/*
+
+# 应用图标（复用 Tauri 的图标资源）
+icon: src-tauri/icons/icon.png
+
+win:
+  icon: src-tauri/icons/icon.ico
+  target:
+    - target: nsis # 安装包 exe
+      arch: [x64]
+    - target: portable # 免安装单文件 exe
+      arch: [x64]
+  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  installerIcon: src-tauri/icons/icon.ico
+  uninstallerIcon: src-tauri/icons/icon.ico
+  deleteAppDataOnUninstall: false
+
+portable:
+  artifactName: ${productName}-${version}-portable-${arch}.${ext}

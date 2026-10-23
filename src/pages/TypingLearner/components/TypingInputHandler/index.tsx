@@ -27,25 +27,31 @@ export type TypingInputHandlerScheme = 'quanpin' | 'flypy' | 'en'
 export default function TypingInputHandler({
   scheme,
   onChar,
+  active,
 }: {
   scheme: TypingInputHandlerScheme
   /** 捕获到一个字符（对码轨恒为 a~z；英语轨为 e.key 原值） */
   onChar: (char: string) => void
+  /**
+   * 是否激活输入捕获（spec-20261019-v1：游戏模块复用本组件时显式传入）。
+   * 不传时行为与改造前完全一致（读 TypingContext.state.isTyping，零回归）。
+   */
+  active?: boolean
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { state } = useContext(TypingContext)!
+  const ctx = useContext(TypingContext)
   const [imeHintVisible, setImeHintVisible] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isCodeTrack = scheme !== 'en'
+  const isActive = active ?? ctx?.state.isTyping ?? false
 
   // 焦点管理：isTyping 时 focus，换题后重新夺回（同 TextAreaHandler 的管理模式）
   useEffect(() => {
     if (!isCodeTrack) return
-    if (state.isTyping) {
+    if (isActive) {
       inputRef.current?.focus()
     }
-  }, [isCodeTrack, state.isTyping, state.chapterData.index])
+  }, [isCodeTrack, isActive, ctx?.state.chapterData.index])
 
   // IME 提示 3 秒自动消失（非阻塞）
   useEffect(() => {
@@ -74,10 +80,10 @@ export default function TypingInputHandler({
 
   useEffect(() => {
     if (!isCodeTrack) return
-    if (!state.isTyping) return
+    if (!isActive) return
     window.addEventListener('keydown', onKeydown, { capture: true })
     return () => window.removeEventListener('keydown', onKeydown, { capture: true })
-  }, [isCodeTrack, onKeydown, state.isTyping])
+  }, [isCodeTrack, onKeydown, isActive])
 
   if (!isCodeTrack) {
     // 英语轨：复用现有 handler（e.key + isLegal，空格可用；DATA-15）
@@ -104,7 +110,7 @@ export default function TypingInputHandler({
         onChange={() => undefined}
         onCompositionStart={() => setImeHintVisible(true)}
         onBlur={() => {
-          if (state.isTyping) inputRef.current?.focus()
+          if (isActive) inputRef.current?.focus()
         }}
       />
       {imeHintVisible && (

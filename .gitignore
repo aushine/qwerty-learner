@@ -9,7 +9,18 @@
 /coverage
 
 # production
+# build/  = Vite 静态产物；dist/ = Electron 安装包（exe）；其余为历史产物目录
 /build
+/dist
+/.electron-dist-cache
+/release
+/release_fix
+/release_fix2
+/dist2
+/dist3
+
+# 私有部署脚本与配置（含服务器地址/账号，仅本地使用，勿提交）
+/deploy
 
 # misc
 .DS_Store

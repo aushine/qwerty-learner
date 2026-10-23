@@ -23,37 +23,51 @@ export type UpstreamInputHandlerProps = {
   onCompositionUpdate?: (text: string) => void
   /** 首次按键（用于 SPEED2-08：从第一个键开始计时） */
   onFirstKey?: () => void
+  /**
+   * 退格回调（spec-20261020-v1 / 01 REQ-102）：删除最近一个已提交字符。
+   * 组合期（拼音未上屏）不触发——由输入法自行处理候选编辑。
+   */
+  onBackspace?: () => void
   /** 是否处于英文素材（英文走 input 兜底路径） */
   isEnglish?: boolean
   /** 外部暂停（模式切换确认条等）时不接收输入 */
   disabled?: boolean
+  /**
+   * 是否激活输入捕获（spec-20261019-v1：游戏模块复用本组件时显式传入）。
+   * 不传时行为与改造前完全一致（读 TypingContext.state.isTyping，零回归）。
+   */
+  active?: boolean
 }
 
 export default function UpstreamInputHandler({
   onCommit,
   onCompositionUpdate,
   onFirstKey,
+  onBackspace,
   isEnglish = false,
   disabled = false,
+  active,
 }: UpstreamInputHandlerProps) {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { state } = useContext(TypingContext)!
+  const ctx = useContext(TypingContext)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const composingRef = useRef(false)
   /** 已从 textarea.value 取走的长度（用于 input 兜底路径去重） */
   const consumedRef = useRef(0)
   const [imeHintVisible, setImeHintVisible] = useState(false)
 
+  const isActive = active ?? ctx?.state.isTyping ?? false
+
   // 焦点管理：练习中保持聚焦，失焦自动夺回（同 TextAreaHandler 的模式）
   useEffect(() => {
-    if (state.isTyping && !disabled) inputRef.current?.focus()
-  }, [state.isTyping, state.chapterData.index, disabled])
+    if (isActive && !disabled) inputRef.current?.focus()
+  }, [isActive, disabled, ctx?.state.chapterData.index])
 
-  // 换题时重置游标
+  // 换题时重置游标（无 TypingContext 时由调用方用 key 重挂载代替）
   useEffect(() => {
+    if (!ctx) return
     consumedRef.current = 0
     if (inputRef.current) inputRef.current.value = ''
-  }, [state.chapterData.index])
+  }, [ctx?.state.chapterData.index, ctx])
 
   // 输入法处于英文态的提示 3 秒后消失（SPEED2-04 非阻塞）
   const showLatinHint = useCallback(() => {
@@ -117,10 +131,19 @@ export default function UpstreamInputHandler({
     [commitText],
   )
 
-  const onKeyDown = useCallback(() => {
-    // SPEED2-08：计时从第一个按键开始（不是第一次上屏）
-    onFirstKey?.()
-  }, [onFirstKey])
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // SPEED2-08：计时从第一个按键开始（不是第一次上屏）
+      onFirstKey?.()
+      // 退格（spec-20261020-v1 / 01 REQ-102）：组合期由输入法自行处理，不触发对照行回退；
+      // 已提交字符的退格上抛给面板。preventDefault 防止浏览器后退等副作用。
+      if (e.key === 'Backspace' && !composingRef.current) {
+        e.preventDefault()
+        onBackspace?.()
+      }
+    },
+    [onFirstKey, onBackspace],
+  )
 
   return (
     <>
@@ -139,7 +162,7 @@ export default function UpstreamInputHandler({
         onInput={onInput}
         onKeyDown={onKeyDown}
         onBlur={() => {
-          if (state.isTyping && !disabled) inputRef.current?.focus()
+          if (isActive && !disabled) inputRef.current?.focus()
         }}
         onChange={() => undefined}
       />

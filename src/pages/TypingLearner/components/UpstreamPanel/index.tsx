@@ -43,6 +43,10 @@ export type UpstreamPanelProps = {
   onFirstKey?: () => void
   /** 标点格式错误回调（首次出现时提示一次） */
   onPunctError?: () => void
+  /** 一命模式整章重开信号（spec-20261020-v1 / 02 REQ-205）：变化即重建面板内部状态 */
+  restartNonce?: number
+  /** 一命模式开启时本次提交出现错字的回调（页面层执行 REPEAT_CHAPTER；REQ-104：提交即既成事实） */
+  onOneLifeViolation?: () => void
 }
 
 export default function UpstreamPanel({
@@ -52,6 +56,8 @@ export default function UpstreamPanel({
   onFinished,
   onFirstKey,
   onPunctError,
+  restartNonce,
+  onOneLifeViolation,
 }: UpstreamPanelProps) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { state, dispatch } = useContext(TypingContext)!
@@ -63,15 +69,18 @@ export default function UpstreamPanel({
   const [composing, setComposing] = useState('')
   const [hasStartedKey, setHasStartedKey] = useState(false)
   const punctWarnedRef = useRef(false)
+  /** 完成判定去重（spec-20261020-v1 / 01 REQ-103）：仅首次到达末尾时触发 onFinished */
+  const finishedRef = useRef(false)
 
-  /** 逐字符状态（换题时重建） */
+  /** 逐字符状态（换题 / 一命整章重开时重建） */
   useEffect(() => {
     setStates(new Array(text.length).fill('normal') as UpstreamCharState[])
     setCursor(0)
     setComposing('')
     setHasStartedKey(false)
     punctWarnedRef.current = false
-  }, [text])
+    finishedRef.current = false
+  }, [text, restartNonce])
 
   /** 跳到下一个非跳过字符（换行 / 空行） */
   const skipAhead = useCallback(
@@ -93,6 +102,7 @@ export default function UpstreamPanel({
       let cur = skipAhead(cursor, target)
       const next = [...states]
       let punctHit = false
+      let wrongInCommit = false
 
       for (const ch of Array.from(raw)) {
         if (cur >= target.length) break // 长度溢出：多余部分丢弃（SPEED2-05 第 4 条）
@@ -110,6 +120,7 @@ export default function UpstreamPanel({
           playKeySound()
         } else {
           next[cur] = 'wrong'
+          wrongInCommit = true
           // SPEED2-05-1：全角/半角标点不匹配 → 归「标点格式」，单独提示一次
           if (CJK_PUNCT.test(expected) || CJK_PUNCT.test(ch)) punctHit = true
           playBeepSound()
@@ -131,7 +142,15 @@ export default function UpstreamPanel({
       onProgress?.(correctCount, submitted)
       dispatch({ type: TypingStateActionType.REPORT_CORRECT_WORD })
 
-      if (nextCursor >= target.length) {
+      // 一命模式（spec-20261020-v1 / 02 REQ-202/204 + REQ-104）：本次提交出现错字即整章重开；
+      // 提交是既成事实（退格不可撤销），不进入完成判定。
+      if (wrongInCommit && onOneLifeViolation) {
+        onOneLifeViolation()
+        return
+      }
+
+      if (nextCursor >= target.length && !finishedRef.current) {
+        finishedRef.current = true
         playHintSound()
         onFinished?.()
       }
@@ -149,9 +168,30 @@ export default function UpstreamPanel({
       onProgress,
       onPunctError,
       onFinished,
+      onOneLifeViolation,
       dispatch,
     ],
   )
+
+  /**
+   * 退格（spec-20261020-v1 / 01 REQ-102）：删除最近一个**已提交**字符——
+   * 状态 correct/wrong 回退 normal（横线重现）、游标左移、计数同步回退并重新上报；
+   * 可一路退到题首，题首再退为无操作。一次上屏多字时每次只退 1 个字符。
+   */
+  const applyBackspace = useCallback(() => {
+    let i = cursor - 1
+    while (i >= 0 && (states[i] === 'normal' || states[i] === 'skipped')) i--
+    if (i < 0) return
+
+    const next = [...states]
+    next[i] = 'normal'
+    setStates(next)
+    setCursor(i)
+
+    const correctCount = next.filter((s) => s === 'correct').length
+    const submitted = next.filter((s) => s === 'correct' || s === 'wrong').length
+    onProgress?.(correctCount, submitted)
+  }, [cursor, states, onProgress])
 
   const handleFirstKey = useCallback(() => {
     if (hasStartedKey) return
@@ -188,6 +228,7 @@ export default function UpstreamPanel({
               onCommit={applyCommit}
               onCompositionUpdate={setComposing}
               onFirstKey={handleFirstKey}
+              onBackspace={applyBackspace}
             />
             <UpstreamTarget
               text={text}
@@ -196,7 +237,7 @@ export default function UpstreamPanel({
               composing={composing}
               fontSize={fontSize}
               isEnglish={isEnglish}
-              windowLines={10}
+              windowGroups={5}
             />
           </div>
         </div>

@@ -183,3 +183,74 @@ export class RevisionWordRecord implements IRevisionWordRecord {
     this.errorCount = errorCount
   }
 }
+
+/**
+ * 游戏单局成绩（spec-20261019-v1 / 01 REQ-06）。
+ * 纯本地存储（gameRecords 表），零上传、无服务端排行榜。
+ * `track` 两轨分开记录、分开标注，不混算（01 REQ-04 口径纪律）。
+ */
+export interface IGameRecord {
+  id?: number
+  gameId: 'moyu' | 'shoot' | 'idiom'
+  track: 'code' | 'ime'
+  language: 'zh' | 'en'
+  tier: 'intro' | 'mid' | 'adv'
+  mode: 'practice' | 'challenge'
+  score: number
+  /** 字准确率 0~1 */
+  accuracy: number
+  /** 击键/秒 */
+  kps: number
+  maxCombo: number
+  rating: 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
+  /** 时长（秒） */
+  time: number
+  timestamp: number
+  /** 幽灵数据（逐目标时间戳 ms，相对开局）；本批次只存不展示 */
+  ghost?: number[]
+  /** 墨雨完成笔画数 */
+  strokes?: number
+  /** 诗词射击通关篇目数 */
+  poemsCleared?: number
+  /** 成语接龙接龙长度 */
+  chainLength?: number
+}
+
+export class GameRecord implements IGameRecord {
+  id?: number
+  gameId: 'moyu' | 'shoot' | 'idiom'
+  track: 'code' | 'ime'
+  language: 'zh' | 'en'
+  tier: 'intro' | 'mid' | 'adv'
+  mode: 'practice' | 'challenge'
+  score: number
+  accuracy: number
+  kps: number
+  maxCombo: number
+  rating: 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
+  time: number
+  timestamp: number
+  ghost?: number[]
+  strokes?: number
+  poemsCleared?: number
+  chainLength?: number
+
+  constructor(data: Omit<IGameRecord, 'id' | 'timestamp'>) {
+    this.gameId = data.gameId
+    this.track = data.track
+    this.language = data.language
+    this.tier = data.tier
+    this.mode = data.mode
+    this.score = data.score
+    this.accuracy = data.accuracy
+    this.kps = data.kps
+    this.maxCombo = data.maxCombo
+    this.rating = data.rating
+    this.time = data.time
+    this.timestamp = getUTCUnixTimestamp()
+    this.ghost = data.ghost
+    this.strokes = data.strokes
+    this.poemsCleared = data.poemsCleared
+    this.chainLength = data.chainLength
+  }
+}

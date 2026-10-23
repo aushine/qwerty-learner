@@ -20,14 +20,20 @@ import Tooltip from '@/components/Tooltip'
 import { isOpenDarkModeAtom } from '@/store'
 import { typingIsShowHanziAtom } from '@/store/typingMode'
 import { useAtom } from 'jotai'
+import { useLocation, useNavigate } from 'react-router-dom'
 import IconMoon from '~icons/heroicons/moon-solid'
 import IconSun from '~icons/heroicons/sun-solid'
+import IconDeviceGamepad2 from '~icons/tabler/device-gamepad-2'
 import IconLanguage from '~icons/tabler/language'
 import IconLanguageOff from '~icons/tabler/language-off'
 
 export default function TypingSwitcher() {
   const [isOpenDarkMode, setIsOpenDarkMode] = useAtom(isOpenDarkModeAtom)
   const [isShowHanzi, setIsShowHanzi] = useAtom(typingIsShowHanziAtom)
+  const navigate = useNavigate()
+  const location = useLocation()
+  // 游戏中心入口（spec-20261020-v1 / 05 REQ-501）：位于游戏路由时图标 indigo 高亮
+  const isGameRoute = location.pathname.startsWith('/typing/game')
 
   const changeDarkModeState = () => {
     setIsOpenDarkMode((old) => !old)
@@ -81,6 +87,20 @@ export default function TypingSwitcher() {
       </Tooltip>
       <Tooltip className="h-7 w-7" content="指法图示">
         <HandPositionIllustration></HandPositionIllustration>
+      </Tooltip>
+      {/* 游戏中心入口（spec-20261020-v1 / 05 REQ-501）：指法图示与设置之间，仅手柄图标 */}
+      <Tooltip className="h-7 w-7" content="游戏中心">
+        <button
+          className={`p-[2px] text-lg focus:outline-none ${isGameRoute ? 'text-indigo-500' : 'text-gray-500'}`}
+          type="button"
+          aria-label="游戏中心"
+          onClick={(e) => {
+            navigate('/typing/game')
+            e.currentTarget.blur()
+          }}
+        >
+          <IconDeviceGamepad2 className="icon" />
+        </button>
       </Tooltip>
       <Tooltip content="设置">
         <Setting />

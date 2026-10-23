@@ -11,18 +11,17 @@ const { chromium } = require('playwright')
     console.log(line)
   }
 
-  // ── ACC-06-01：标题下方箭头 → 下拉含两项 → 点「打字模式」进入 /typing ──
+  // ── ACC-06-01：模式切换按钮（start/pause 形式）→ 点击进入 /typing ──
+  // 2026-10-21 改版：原 hover 浮层 + role=menu/menuitem 已废除，改为单个切换按钮
+  // （data-testid="mode-toggle"，标签=目标模式；学习态 indigo「打字模式」/打字态 gray「学习模式」）
   const p1 = await browser.newPage({ viewport: { width: 1440, height: 900 } })
   const errs1 = []
   p1.on('pageerror', (e) => errs1.push(e.message))
   await p1.goto('http://localhost:5199/', { waitUntil: 'load', timeout: 30000 })
   await p1.waitForTimeout(2500)
-  await p1.locator('header button[aria-haspopup="menu"]').click()
-  await p1.waitForSelector('[role="menu"]', { timeout: 3000 })
-  const menuVisible = (await p1.locator('[role="menu"]').count()) > 0
-  const menuText = (await p1.locator('[role="menu"]').textContent().catch(() => '')) || ''
-  check('ACC-06-01 箭头下拉出现且含两项', menuVisible && menuText.includes('学习模式') && menuText.includes('打字模式'), menuText.replace(/\s+/g, ' ').slice(0, 40))
-  await p1.locator('[role="menuitem"]', { hasText: '打字模式' }).click()
+  const toggleLabel = (await p1.locator('[data-testid="mode-toggle"]').innerText().catch(() => '')) || ''
+  check('ACC-06-01 切换按钮存在且标签=打字模式', toggleLabel.trim() === '打字模式', toggleLabel)
+  await p1.locator('[data-testid="mode-toggle"]').click()
   await p1.waitForTimeout(2500)
   check('ACC-06-01 点击后进入 /typing', p1.url().includes('/typing'), p1.url())
 
@@ -46,9 +45,8 @@ const { chromium } = require('playwright')
   await p1.waitForTimeout(400)
   await p1.keyboard.press('u') // 输入一个正确键（首词 ui）
   await p1.waitForTimeout(300)
-  await p1.locator('header button[aria-haspopup="menu"]').click()
-  await p1.waitForTimeout(400)
-  await p1.locator('[role="menuitem"]', { hasText: '学习模式' }).click()
+  // 2026-10-21 改版：点击模式切换按钮（打字态标签=学习模式）→ 练习中先弹确认条
+  await p1.locator('[data-testid="mode-toggle"]').click()
   await p1.waitForTimeout(500)
   const confirmBar = p1.locator('[data-testid="mode-switch-confirm"]')
   const barVisible = (await confirmBar.count()) > 0
@@ -105,10 +103,10 @@ const { chromium } = require('playwright')
   // ── ACC-06-32：全流程可纯键盘完成 ──
   // 注意：首页 `/`（学习模式）的 Tab 被上游 WordPanel 的「Tab 显示释义」热键消费
   // （REG-05 受保护的回归行为，且 WordPanel 不在 REG-15 白名单内，不得改动）；
-  // `/typing` 的「按任意键开始」window 处理器已加护栏：菜单打开时不抢焦点（见
-  // TypingLearner/index.tsx）。因此键盘流在 /typing 验证入口、在 /typing/gallery
-  // 验证选语言→方案→卡片。
-  //  Part A：/typing → Tab 到模式入口 → Enter 展开 → 方向键 + Enter 选择并切换
+  // `/typing` 的「按任意键开始」window 处理器已加护栏：模式切换按钮聚焦并按
+  // Enter/Space 时不抢焦点（见 TypingLearner/index.tsx 的 mode-toggle 守卫）。
+  // 因此键盘流在 /typing 验证入口、在 /typing/gallery 验证选语言→方案→卡片。
+  //  Part A：/typing → Tab 到模式切换按钮 → Enter 激活并切回学习模式
   //  Part B：画廊 → Tab 选语言 Tab → 选方案（双拼二级）→ 选胶囊 → 选卡片 → 进练习
   const p6 = await browser.newPage({ viewport: { width: 1440, height: 900 } })
   await p6.goto('http://localhost:5199/typing', { waitUntil: 'load', timeout: 30000 })
@@ -120,22 +118,16 @@ const { chromium } = require('playwright')
     }
     return false
   }
-  const reachedEntry = await tabUntil(p6, () => document.activeElement?.getAttribute('aria-haspopup') === 'menu')
-  check('ACC-06-32a Tab 可到达模式切换入口', reachedEntry)
+  // 2026-10-21 改版：模式入口为原生 <button data-testid="mode-toggle">（Enter/Space 激活，
+  // onKeyDown 显式处理以绕开首页 document 级 Enter 热键对原生 click 的压制）
+  const reachedEntry = await tabUntil(p6, () => !!document.activeElement?.closest('[data-testid="mode-toggle"]'))
+  check('ACC-06-32a Tab 可到达模式切换按钮', reachedEntry)
   let switched = false
   if (reachedEntry) {
-    // ENTRY-07：触发器嵌在页头 <a>（NavLink）内，Enter 的合成 click 会二次翻转
-    // 关闭菜单（不稳定）。实测稳定路径：直接按 ↓ 展开菜单（onArrowKeyDown 中
-    // if (!isOpen) setIsOpen(true)），再 ↓ 移到「学习模式」，Enter 选中回到首页。
-    await p6.keyboard.press('ArrowDown') // ↓ 展开菜单（Tab+↓）
-    await p6.waitForTimeout(300)
-    const menuOpen = (await p6.locator('[role="menu"]').count()) > 0
-    await p6.keyboard.press('ArrowDown') // 移到「学习模式」
-    await p6.waitForTimeout(150)
-    await p6.keyboard.press('Enter') // 选中
+    await p6.keyboard.press('Enter') // 激活按钮 → 切回学习模式
     await p6.waitForTimeout(2500)
-    switched = menuOpen && p6.url().replace(/\/$/, '') === 'http://localhost:5199'
-    check('ACC-06-32a 键盘可展开并切换模式', switched, 'menuOpen=' + menuOpen + ' url=' + p6.url())
+    switched = p6.url().replace(/\/$/, '') === 'http://localhost:5199'
+    check('ACC-06-32a 键盘可切换模式', switched, 'url=' + p6.url())
   }
 
   const p7 = await browser.newPage({ viewport: { width: 1440, height: 900 } })
@@ -186,7 +178,9 @@ const { chromium } = require('playwright')
   }
   check('ACC-06-32b 键盘可开始练习', practiceStarted)
 
-  // ── ACC-06-05b：长文章素材章节单位用「段」（KEEP-02 / 02 §6 长文章用段）──
+  // ── ACC-06-05b：英语文章素材章节按钮显示文章标题 ──
+  // 注：早期断言为「第 1 段」；现行实现 chapterLabelMode='title'（文章类显示篇名 +
+  // tooltip「切换文章」，见 typingMaterials.ts 与 TypingMaterialButton），2026-10-21 校正断言。
   const p8 = await browser.newPage({ viewport: { width: 1440, height: 900 } })
   await p8.goto('http://localhost:5199/typing/gallery', { waitUntil: 'load', timeout: 30000 })
   await p8.waitForTimeout(2000)
@@ -198,8 +192,8 @@ const { chromium } = require('playwright')
   await p8.waitForTimeout(2500)
   const header8 = (await p8.locator('header').textContent().catch(() => '')) || ''
   check(
-    'ACC-06-05b 英语文章素材页头显示「第 1 段」',
-    p8.url().includes('/typing') && header8.includes('第 1 段'),
+    'ACC-06-05b 英语文章素材页头显示篇名（标题模式）',
+    p8.url().includes('/typing') && header8.includes('切换文章'),
     p8.url().includes('/typing') ? header8.slice(0, 30) : '未进入 /typing',
   )
 

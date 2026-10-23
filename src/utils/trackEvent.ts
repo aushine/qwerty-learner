@@ -3,7 +3,7 @@ import { track } from '@vercel/analytics'
 export const trackPromotionEvent = (event: string, properties: Record<string, string>) => {
   track(event, properties)
 
-  // @ts-expect-error gtag is not defined in the window object
+  // window.gtag 由 index.html 的 gtag.js 注入（类型声明见 vite-env.d.ts）
   if (typeof window !== 'undefined' && window?.gtag) {
     try {
       window.gtag('event', event, { ...properties })

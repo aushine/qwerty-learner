@@ -99,6 +99,12 @@ export type TypingKeyboardProps = {
   onToggleCollapsed: () => void
   /** 点击键帽产生等价击键（KB-14，可选）：传入该键对应的字符 */
   onKeyClick?: (char: string) => void
+  /**
+   * 错键热图数据（spec-20261019-v1 复盘页，可选）：
+   * 物理键 code → 本局错误次数。传入时按错误次数分级着色（不参与高亮互斥逻辑）。
+   * 不传时行为与改造前完全一致（零回归）。
+   */
+  errorCounts?: Record<string, number>
 }
 
 type KeyDef = {
@@ -254,6 +260,7 @@ export default function TypingKeyboard({
   collapsed,
   onToggleCollapsed,
   onKeyClick,
+  errorCounts,
 }: TypingKeyboardProps) {
   const { width } = useWindowSize()
 
@@ -371,6 +378,17 @@ export default function TypingKeyboard({
                   const isWrong = def.code === wrongKeyCode
                   const isHint = isNext && flashOn
                   const zone: 'all' | 'initial' | 'final' = isNext ? nextZone : 'all'
+                  // 错键热图分级（复盘页）：0=无错误；1~3 级红色渐深（不抢占高亮态）
+                  const errCount = errorCounts?.[def.code] ?? 0
+                  const heatLevel = errCount > 0 ? Math.min(3, Math.ceil(errCount / 2)) : 0
+                  const heatClass =
+                    heatLevel === 1
+                      ? 'bg-red-100 dark:bg-red-900/30'
+                      : heatLevel === 2
+                      ? 'bg-red-200 dark:bg-red-900/50'
+                      : heatLevel === 3
+                      ? 'bg-red-300 dark:bg-red-800/60'
+                      : undefined
 
                   const keyBody = (
                     <div
@@ -383,10 +401,13 @@ export default function TypingKeyboard({
                           ? 'scale-[1.03] border-indigo-500 bg-indigo-500 text-white ring-2 ring-indigo-300 ring-offset-1'
                           : isDone
                           ? 'border-gray-200 bg-indigo-100 dark:border-gray-600 dark:bg-indigo-900/40'
+                          : heatClass
+                          ? classNames('border-red-200 dark:border-red-700', heatClass)
                           : 'border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700',
                         isHint ? 'animate-pulse' : undefined,
                         def.char && onKeyClick ? 'cursor-pointer hover:bg-indigo-50 dark:hover:bg-gray-600' : '',
                       )}
+                      title={errCount > 0 ? `本局错 ${errCount} 次` : undefined}
                       onClick={def.char && onKeyClick ? () => onKeyClick(def.char as string) : undefined}
                       onKeyDown={
                         def.char && onKeyClick

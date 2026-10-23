@@ -2,6 +2,7 @@
  * MaterialGroup —— 素材分组（spec-20261017-v1 / 03 §5 GAL-10/11）
  *
  * 照搬 Gallery-N/CategoryDicts 结构：分组标题（category）+ DictTagSwitcher 胶囊行 + 卡片网格。
+ * （2026-10-21：组头部整块 sticky top-0 固定，见 JSX 内注释——用户要求与输入方式行同样不随滚动。）
  * 🔴 DictTagSwitcher 直接复用现有组件（GAL-10），不复制不改写。
  * 🔴 胶囊按 `materialType` 分（GAL-10：RadioGroup 的 value/onChange 直接映射到「素材类型」）：
  *    中文 = 字 / 词 / 成语 / 短句 / 文章（spec §5.1），英语 = 段落 / 文章（spec §5.2）。
@@ -70,37 +71,44 @@ export default function MaterialGroup({
 
   return (
     <div>
-      <h2 className="mb-2 text-xl font-normal text-gray-700 dark:text-gray-200">{title}</h2>
-      <DictTagSwitcher
-        tagList={typeList.map(labelOf)}
-        currentTag={currentType ? labelOf(currentType) : ''}
-        onChangeCurrentTag={onChangeCurrentType}
-      />
+      {/*
+        组头部 sticky 固定（2026-10-21 用户要求：与「全拼/双拼/打字测速」行一样保持固定，
+        不随卡片滚动）——分类标题 + 素材类型胶囊（字/词/成语/短句/文章）+ 难度子胶囊整块吸附，
+        底色取页面背景（浅色 #faf9ff / 深色 gray-900），卡片从下方滚过时被遮住不穿透。
+      */}
+      <div className="sticky top-0 z-10 bg-[#faf9ff] pb-2 dark:bg-gray-900">
+        <h2 className="mb-2 pt-2 text-xl font-normal text-gray-700 dark:text-gray-200">{title}</h2>
+        <DictTagSwitcher
+          tagList={typeList.map(labelOf)}
+          currentTag={currentType ? labelOf(currentType) : ''}
+          onChangeCurrentTag={onChangeCurrentType}
+        />
 
-      {/* 难度子胶囊（GAL2-11：小一号，复用胶囊视觉） */}
-      {isArticleType && (
-        <div className="mt-4 flex items-center space-x-2">
-          {(['all', ...DIFFICULTY_ORDER] as const).map((level) => {
-            const checked = currentDifficulty === level
-            return (
-              <button
-                key={level}
-                type="button"
-                className={classNames(
-                  'whitespace-nowrap rounded-[3rem] px-3 py-1 text-sm transition-colors duration-300',
-                  checked
-                    ? 'bg-indigo-400 text-white'
-                    : 'border border-gray-200 bg-white text-gray-500 hover:bg-indigo-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-600',
-                )}
-                onClick={() => setCurrentDifficulty(level)}
-                aria-pressed={checked}
-              >
-                {level === 'all' ? '全部' : DIFFICULTY_LABELS[level]}
-              </button>
-            )
-          })}
-        </div>
-      )}
+        {/* 难度子胶囊（GAL2-11：小一号，复用胶囊视觉） */}
+        {isArticleType && (
+          <div className="mt-4 flex items-center space-x-2">
+            {(['all', ...DIFFICULTY_ORDER] as const).map((level) => {
+              const checked = currentDifficulty === level
+              return (
+                <button
+                  key={level}
+                  type="button"
+                  className={classNames(
+                    'whitespace-nowrap rounded-[3rem] px-3 py-1 text-sm transition-colors duration-300',
+                    checked
+                      ? 'bg-indigo-400 text-white'
+                      : 'border border-gray-200 bg-white text-gray-500 hover:bg-indigo-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-600',
+                  )}
+                  onClick={() => setCurrentDifficulty(level)}
+                  aria-pressed={checked}
+                >
+                  {level === 'all' ? '全部' : DIFFICULTY_LABELS[level]}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="mt-8 grid gap-x-5 gap-y-10 px-1 pb-4 sm:grid-cols-1 md:grid-cols-2 dic3:grid-cols-3 dic4:grid-cols-4">
         {currentType && groupedMaterialsByType[currentType] ? (

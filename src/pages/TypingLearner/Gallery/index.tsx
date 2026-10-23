@@ -237,30 +237,39 @@ export default function TypingGalleryPage() {
 
   return (
     <Layout>
-      <div className="relative mb-auto mt-auto flex w-full flex-1 flex-col overflow-y-auto pl-20">
+      {/*
+        盒模型（2026-10-21 修复，用户报「上下空间够却仍能滚轮滚动」）：
+        - 页面自身 overflow-hidden：整页永不滚动，滚轮只可能作用于素材列表区；
+        - 语言行 / 输入方式行 shrink-0 固定；唯一滚动区 = Radix viewport（flex-1）；
+        - 旧结构三层嵌套 overflow-y-auto + h-full，内容略超高时外层也会参与滚动，
+          且 pt-[20rem] 的 320px 幻影间距让「明显有空间」的页面依然可滚。
+      */}
+      <div className="relative flex w-full flex-1 flex-col overflow-hidden pl-20">
         <IconX className="absolute right-20 top-10 mr-2 h-7 w-7 cursor-pointer text-gray-400" onClick={onBack} />
-        <div className="mt-20 flex w-full flex-1 flex-col items-center justify-center overflow-y-auto">
-          <div className="flex h-full flex-col overflow-y-auto">
-            {/* 第 ① 级：语言 Tab */}
-            <div className="flex h-20 w-full items-center justify-between pb-6 pr-20">
+        <div className="mt-20 flex w-full flex-1 flex-col items-center overflow-hidden">
+          <div className="flex h-full flex-col overflow-hidden">
+            {/* 第 ① 级：语言 Tab（固定） */}
+            <div className="flex h-20 w-full shrink-0 items-center justify-between pb-6 pr-20">
               <TypingLanguageTabSwitcher value={tab} onChange={onChangeTab} />
               {/* 右侧留空（DictRequest 在打字模式无处可去，隐藏） */}
             </div>
 
-            {/* 第 ② 级：输入方式（仅中文） */}
+            {/* 第 ② 级：输入方式（仅中文；固定） */}
             {tab === 'zh' && (
-              <TypingSchemeSwitcher
-                scheme={scheme}
-                inputTrack={inputTrack}
-                onChange={onChangeScheme}
-                onChangeTrack={onChangeTrack}
-              />
+              <div className="shrink-0">
+                <TypingSchemeSwitcher
+                  scheme={scheme}
+                  inputTrack={inputTrack}
+                  onChange={onChangeScheme}
+                  onChangeTrack={onChangeTrack}
+                />
+              </div>
             )}
 
-            {/* 第 ③ + ④ 级：素材分组 + 卡片 */}
+            {/* 第 ③ + ④ 级：素材分组 + 卡片（唯一滚动区；组内胶囊行 sticky 固定） */}
             <ScrollArea.Root className="flex-1 overflow-y-auto">
               <ScrollArea.Viewport className="h-full w-full ">
-                <div className="mr-4 flex flex-1 flex-col items-start justify-start gap-14 overflow-y-auto">
+                <div className="mr-4 flex flex-col items-start justify-start gap-14">
                   {groupedByCategory.map(([category, groupedByType]) => (
                     <MaterialGroup
                       key={category}
@@ -273,7 +282,7 @@ export default function TypingGalleryPage() {
                   ))}
                 </div>
                 {/* GAL-11-1：底部版权说明（复用现有文案 + 中文素材署名） */}
-                <div className="flex items-center justify-center pb-10 pt-[20rem] text-gray-500">
+                <div className="flex items-center justify-center pb-10 pt-10 text-gray-500">
                   <IconInfo className="mr-1 h-5 w-5" />
                   <p className="mr-5 w-10/12 text-xs">
                     本项目的词典数据来自多个开源项目以及社区贡献者的无偿提供。我们深感感激并尊重每一位贡献者的知识产权。

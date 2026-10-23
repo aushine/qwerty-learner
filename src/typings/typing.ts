@@ -35,6 +35,74 @@ export type TypingInputTrack = 'code' | 'ime'
 export type TypingWordDifficulty = 'intro' | 'mid' | 'adv'
 
 /**
+ * ─────────────────────────────────────────────────────────────
+ * 打字游戏模块（spec-20261019-v1「游戏中心与共享引擎」）
+ * 🔴 与上方学习/打字模式类型同文件但独立成区，前缀 Game 避免混淆。
+ * ─────────────────────────────────────────────────────────────
+ */
+
+/** 玩法 id（01 §四 GameConfig.kind） */
+export type GameId = 'moyu' | 'shoot' | 'idiom'
+
+/** 难度 tier（05 DATA-02：入门/进阶/挑战，沿用文章难度分组口径） */
+export type GameTier = 'intro' | 'mid' | 'adv'
+
+/** 游戏模式：练习（不失败）/ 挑战（生命或计时，01 REQ-03） */
+export type GameMode = 'practice' | 'challenge'
+
+/** 单局评级（09 §4.2：S/A/B/C/D/F 多维加权，准确率一票否决） */
+export type GameRating = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
+
+/** 游戏配置（01 §四，运行期） */
+export type GameConfig = {
+  id: GameId
+  /** 玩法名（卡片标题） */
+  name: string
+  kind: GameId
+  /** 语言 Tab：zh=仅中文；both=中英皆可（成语接龙中文专属） */
+  languageTab: TypingLanguageTab | 'both'
+  /** 默认输入轨（01 REQ-04：默认对码轨） */
+  defaultTrack: TypingInputTrack
+  /** 一句话简介（卡片） */
+  summary: string
+  /** 招牌玩法置顶（00 §5：墨雨 ★） */
+  featured?: boolean
+  /** 是否提供练习模式（MOYU-04 / IDIOM-03；诗词射击仅挑战） */
+  hasPracticeMode: boolean
+}
+
+/** 成绩记录结构（01 REQ-06：纯本地、零上传） */
+export type GameRecordData = {
+  id?: number
+  gameId: GameId
+  track: TypingInputTrack
+  language: TypingLanguageTab
+  tier: GameTier
+  mode: GameMode
+  score: number
+  /** 字准确率 0~1 */
+  accuracy: number
+  /** 击键/秒 */
+  kps: number
+  maxCombo: number
+  rating: GameRating
+  /** 时长（秒） */
+  time: number
+  timestamp: number
+  /**
+   * 幽灵数据：每个被清除目标的时间戳（ms，相对开局）。
+   * ⚠️ 本批次只存不展示（09 §3.5 可视覆盖层待后续批次，schedule 已备注）。
+   */
+  ghost?: number[]
+  /** 墨雨：本局完成笔画数 */
+  strokes?: number
+  /** 诗词射击：通关篇目数 */
+  poemsCleared?: number
+  /** 成语接龙：本局接龙长度 */
+  chainLength?: number
+}
+
+/**
  * 逐字对齐单元（打字模式题面「拼音行 / 汉字行」一一对应的数据来源）。
  *
  * 一个 unit 对应 `notation` 中的**一个字符**（汉字或标点），因此

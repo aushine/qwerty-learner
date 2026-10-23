@@ -1,6 +1,7 @@
 import type { LanguagePronunciationMap, SoundResource } from '@/typings'
 
-export const SOUND_URL_PREFIX = REACT_APP_DEPLOY_ENV === 'pages' ? '/qwerty-learner/sounds/' : './sounds/'
+export const SOUND_URL_PREFIX =
+  REACT_APP_DEPLOY_ENV === 'pages' ? '/qwerty-learner/sounds/' : import.meta.env.BASE_URL + 'sounds/'
 export const KEY_SOUND_URL_PREFIX = SOUND_URL_PREFIX + 'key-sound/'
 
 // will add more sound resource and add config ui in the future

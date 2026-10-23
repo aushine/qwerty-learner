@@ -1,4 +1,5 @@
-# English Essays (10 篇，每篇 300-600 词；本项目自撰原创内容，无版权风险)
+# English Essays (15 篇，每篇 300-600 词；本项目自撰原创内容，无版权风险)
+# 2026-10 扩充：新增 5 篇（乏味工作的价值 / 重新做初学者 / 预估为何失准 / 把事做完 / 闲聊有用）
 # 一篇一块，块间空行；英语素材 name = 文章原文，逐字符对码练习
 ### The Quiet Craft of Typing
 @mid
@@ -155,3 +156,78 @@ Teachers and tutorials matter less than expected in this zone. The instructions 
 Tracking progress helps, in a specific way. Record the date, the duration, and one thing that went wrong. The record makes the invisible visible: a month of entries shows the slope that a single day hides. On the days when nothing feels better, the record says otherwise, and the record is more reliable than the mood.
 
 The hundred hours also build something beyond the skill. They prove, to the person who completes them, that they can become someone who does the thing. That proof transfers. The person who has been a beginner once, on purpose, and survived it, approaches the next beginning differently. The discomfort is recognized as a stage rather than a verdict, and stages pass.
+
+### The Value of Boring Work
+@mid
+
+The romantic image of work is the flash of insight: the inventor alone at midnight, the writer struck by a perfect sentence, the programmer who solves in one sitting what the team could not solve in a month. These moments exist, but they are the smallest part of the picture. Most of what gets done in the world is done by boring work, repeated patiently, by people who never appear in the story.
+
+Boring work has a specific shape. It is the third revision of the document nobody will praise. It is the tenth practice run of the presentation. It is the weekly review that clears the small tasks before they become emergencies. None of it is memorable, and all of it is what separates plans from results. The person who does the boring work wins not by talent but by attendance.
+
+There is a reason boredom is avoided. Novelty produces dopamine; repetition does not. The brain treats the familiar as already-handled and looks elsewhere for stimulation. This is why the fifth repetition of a task feels harder than the first, even though the first was worse. The difficulty is not in the task but in the attention the task no longer commands automatically.
+
+The fix is not to make boring work exciting but to make it smaller and more visible. A checklist turns a vague obligation into a concrete action. A timer turns an open-ended chore into a bounded one. A log turns invisible effort into a record. None of these tools change the nature of the work; they change the experience of doing it, which is often the part that fails first.
+
+Boring work also compounds. The tenth time a task is done, it is faster and better than the first, not because the task changed but because the person did. Skill accumulates in the repetitions that nobody applauds. The expert is simply the beginner who kept going through the part where nothing interesting happened.
+
+The goal, in the end, is not to escape boring work but to choose which boring work to do. Every meaningful career contains long stretches of unremarkable effort. The question is whether those stretches point somewhere worth going. Choose the boredom that builds toward something, and the boredom becomes tolerable, then invisible, then simply part of the work.
+
+### On Being a Beginner Again
+@mid
+
+Adults rarely allow themselves to be beginners. The last time most people were consciously bad at something was childhood, and the memory is uncomfortable enough that they have avoided the feeling ever since. Adults choose activities they are already decent at, refine skills they already possess, and describe themselves in fixed terms: not a musical person, not a math person, not handy. The labels are a defense against the discomfort of starting over.
+
+Being a beginner again, on purpose, is one of the most useful things an adult can do. The first lesson is tolerance for confusion. Nothing about a new skill is obvious at the start, and the instinct to interpret confusion as inability is exactly wrong. Confusion is the normal state of the first weeks. The beginner who expects it stops treating it as a verdict.
+
+The second lesson is the difference between learning and performing. A beginner cannot perform, so they are forced to learn, and learning turns out to be a different activity entirely: slower, more curious, more attentive to detail than the practiced version of the same skill. Adults who have been competent for years often work on autopilot. Beginnerhood interrupts the autopilot and makes the mechanics visible again.
+
+There is also a social lesson. Asking basic questions, being the slowest person in the room, and needing something explained twice are all small humiliations that most adults arrange their lives to avoid. A beginner accepts them temporarily and discovers that the world is more forgiving than feared. Most people are happy to help someone who is openly trying.
+
+The choice of what to begin matters less than expected. The point is not the skill but the stance: the willingness to be bad at something in public, on purpose, with no guarantee of ever being good. That stance transfers. A person who has recently been a beginner treats other beginners differently, teaches more patiently, and recovers from failure faster, because failure is a familiar place rather than a foreign country.
+
+Nobody needs to become an expert at the new thing. Most beginner projects end at competent enough, and that is a fine outcome. The value was never the destination. It was the reminder that the beginning is survivable, that confusion has an exit, and that a person is allowed to start things late and badly. The beginner who survives the beginning owns something the expert has forgotten: the knowledge that they can learn.
+
+### Why Estimates Fail
+@mid
+
+Almost every estimate of how long a task will take is wrong, and it is wrong in the same direction: too optimistic. This is not carelessness. Careful people give optimistic estimates; experienced people give optimistic estimates; teams that were burned last quarter give optimistic estimates for this quarter. The bias is structural, and understanding why it happens is the first step to doing better.
+
+The main cause is that estimating is done from the inside. When picturing a task, the mind rehearses the ideal version: the parts that go as planned, in the order planned, without interruptions. The rehearsal feels like evidence, but it is only a rehearsal of the best case. Real work includes the wrong turn, the missing prerequisite, the clarification that arrives after the build. None of these appear in the mental rehearsal, so none appear in the estimate.
+
+A second cause is that estimates are usually made for a single task, while life delivers tasks in batches. Any single task may take about as long as expected, but four tasks in the same week do not take four times as long; they take more, because switching between them costs attention, and because each one waits for the others. The overhead of multiplicity is invisible when each item is estimated alone.
+
+There is a fix, and it is unglamorous: measure. Write down the estimate, then write down the actual. After a month, compare. Most people discover that their estimates run short by a consistent factor, often a large one. That factor is not a character flaw; it is a personal calibration waiting to be applied. Estimates improve immediately once the past is allowed to correct them.
+
+The other fix is to break the task down before estimating. Large tasks are estimated badly because they contain unknowns that are themselves unknown; small tasks are estimated well because their contents are visible. A task estimated at two weeks should be split into pieces small enough to see clearly, and the pieces should be estimated one by one. The sum is almost always larger than the whole, and it is almost always closer to the truth.
+
+Estimates will never be exact, and they do not need to be. They need to be honest about uncertainty, expressed as a range rather than a single confident number. The team that says three to five days and delivers in four is trusted. The team that says two days and delivers in six is not, even though the same work was done. The estimate was the failure, not the work.
+
+### The Case for Finishing Things
+@mid
+
+Starting things is fun. The beginning of a project is full of possibility, and possibility is pleasant in a way that execution never is. This is why so many projects exist in the world at ninety percent: the last stretch offers little joy, and the brain, seeking novelty, suggests that a new beginning would be more rewarding than an old ending. It usually is not.
+
+The habit of not finishing has costs that are easy to miss. An unfinished project occupies mental space that does not get released. The half-read book, the abandoned course, the app idea documented but never built, each one sits in the background with a small open loop attached. Ten unfinished things cost more attention than one finished thing, even though the finished thing was harder.
+
+Finishing teaches something that starting cannot. Every project has a phase where the original idea meets reality and reality wins: the design that looked clean on paper is awkward in use, the argument that seemed airtight has a hole in the third paragraph. This phase is where the work actually happens, and the only way through it is through it. People who habitually quit at this phase never learn what their own ideas look like after contact with reality.
+
+There is a discipline to finishing that is separate from the discipline of starting. Starting requires enthusiasm; finishing requires tolerance. The tolerance is for the gap between the imagined version and the actual one. Every finished thing is slightly worse than the version that existed in the head, and the skill is in accepting the actual version as good enough to release. Perfectionism, in this light, is not a high standard but an avoidance strategy: a way of never finding out what the finished thing would have been.
+
+None of this argues for finishing everything. Abandoning a project is sometimes the correct decision, and the skill is in distinguishing the project that should end from the project that is merely hard. The test is simple: would the finished version be useful, even if imperfect? If yes, the discomfort is the cost of doing the work, and the work should be finished. If no, ending it early is not failure but judgment.
+
+The finished things accumulate into a record. A portfolio of small completed work, however modest, is evidence of an ability that talent alone does not provide: the ability to carry something from idea to done. That ability is rare, it is visible, and it is built one finished thing at a time.
+
+### Small Talk Is Useful
+@mid
+
+Small talk has a bad reputation among people who prefer big talk. It is dismissed as empty, performative, a waste of breath that could be spent on something substantive. The criticism is half right: small talk rarely exchanges information. But it was never for information. Its function is social, and the social function it performs matters more than the content it carries.
+
+The first job of small talk is safety. Conversation with a stranger is a negotiation about whether the interaction continues, and neither party can announce that directly. Remarks about the weather, the queue, or the shared inconvenience are probes: low-stakes exchanges that reveal whether the other person is willing to talk at all. A reply to a probe is not really about the weather. It is a signal, and most people read it correctly without noticing that they are reading anything.
+
+The second job is warmth. Relationships are not built in the serious conversations; they are built in the small ones that come before them. The colleague who chats about the commute becomes the colleague who is asked for help. The neighbor who exchanges remarks about the garden becomes the neighbor who notices when something is wrong. None of these exchanges would matter on its own. Accumulated, they are the difference between a stranger and a person one knows.
+
+Small talk is also a skill, and like any skill it improves with practice. Beginners assume they must be interesting; the experienced know they must be interested. Questions do more work than statements, and open questions do more work than closed ones. The goal is not to impress but to find the small area where the other person is happy to talk, and then to let them. Most people will talk gladly about something if given the opening; the opening is the whole art.
+
+There is a version of small talk done badly, and it gives the whole practice its bad name: the monologue disguised as a conversation, the questions that are really statements, the performance of listening while waiting to speak. This version is empty because it was never actually about the other person. Done well, small talk is the opposite: brief, attentive, and honest about its smallness.
+
+The elevator, the coffee line, and the five minutes before the meeting starts are not where ideas are exchanged. They are where the conditions for exchanging ideas are created. A team that never makes small talk is a team that meets only in the formal channels, and the formal channels are narrower than they look. The chat before the meeting is not a delay of the meeting. It is part of the meeting, and often the part where the real information moves.

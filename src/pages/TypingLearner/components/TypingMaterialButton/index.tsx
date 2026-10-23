@@ -72,7 +72,7 @@ export default function TypingMaterialButton() {
     <>
       <Tooltip content="切换语言 / 输入方式 / 素材">
         <NavLink
-          className="block rounded-lg px-3 py-1 text-lg transition-colors duration-300 ease-in-out hover:bg-indigo-400 hover:text-white focus:outline-none dark:text-white dark:text-opacity-60 dark:hover:text-opacity-100"
+          className="block rounded-lg px-3 py-1 text-lg text-gray-600 transition-colors duration-300 ease-in-out hover:bg-indigo-600 hover:text-white focus:outline-none dark:text-white dark:text-opacity-60 dark:hover:text-opacity-100"
           to="/typing/gallery"
         >
           {entryLabel}
@@ -82,7 +82,7 @@ export default function TypingMaterialButton() {
         <Listbox value={currentChapter} onChange={setCurrentChapter}>
           <Listbox.Button
             onKeyDown={handleKeyDown}
-            className="rounded-lg px-3 py-1 text-lg transition-colors duration-300 ease-in-out hover:bg-indigo-400 hover:text-white focus:outline-none dark:text-white dark:text-opacity-60 dark:hover:text-opacity-100"
+            className="rounded-lg px-3 py-1 text-lg text-gray-600 transition-colors duration-300 ease-in-out hover:bg-indigo-600 hover:text-white focus:outline-none dark:text-white dark:text-opacity-60 dark:hover:text-opacity-100"
           >
             {chapterName(currentChapter)}
           </Listbox.Button>

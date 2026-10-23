@@ -2,7 +2,7 @@
  * TypingSchemeSwitcher —— 输入方式选择（全拼 / 双拼二级 / 打字测速）
  * （spec-20261017-v1 / 03 §4 + spec-20261017-v2 / 02 SPEED2-01 ~ SPEED2-02）
  *
- * 三个互斥选项，内部由两个正交维度表达：
+ * 三个互斥选项：
  *   [全拼]      → track=code, scheme=quanpin
  *   [双拼 ▾]    → track=code, scheme=flypy（hover 展开小鹤等二级）
  *   [打字测速]  → track=ime（上屏轨，不管用户输入法）
@@ -11,6 +11,7 @@
  * GAL-07：置灰项必须可见但不可选中（含 URL 注入，由 atom 校验兜底）。
  * SPEED2-02：高亮互斥——track=ime 时「双拼」不高亮（即使 scheme 仍是 flypy）。
  * 视觉：一级按钮复用 DictTagSwitcher 胶囊样式；二级容器复用 listbox-options。
+ * 注：游戏中心入口已于 spec-20261020-v1 / 05 迁移至功能栏手柄图标，此处不再提供。
  */
 
 import type { TypingInputTrack, TypingSchemeId, TypingSchemeIdAll } from '@/typings/typing'

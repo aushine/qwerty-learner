@@ -1,7 +1,10 @@
-# English Classics (6 篇，公有领域英文原文)
+# English Classics (12 篇，公有领域英文原文)
 # 格式：`### 标题` + `@难度` + 正文段；块间空行分隔
 # 公版依据：Bacon (d. 1626) / Emerson (d. 1882) / Thoreau (d. 1862) / Swift (d. 1745) /
-#          Addison (d. 1719) / Lamb (d. 1834)，作者卒年均超过 50 年，原文属公有领域
+#          Addison (d. 1719) / Lamb (d. 1834) / Lincoln (d. 1865) / Shakespeare (d. 1616) /
+#          Shelley (d. 1822) / Dickens (d. 1870) / Paine (d. 1809) / Dickinson (d. 1886)，
+#          作者卒年均超过 50 年，原文属公有领域
+# 2026-10 扩充：新增 6 篇（葛底斯堡演说 / 十四行诗第 18 首 / 奥兹曼迪亚斯 / 双城记开篇 / 美国危机 / 因为我不能停步等待死亡）
 # 注意：仅使用英文原文，不使用任何现代译本
 ### Of Studies
 @adv
@@ -26,3 +29,35 @@ The pleasures of reading are of two kinds, those which we derive from the subjec
 ### The Superannuated Man
 @mid
 I have often thought that the life of a clerk is a state of servitude the most complete and the most hopeless that can be imagined. He is bound to a desk from morning till night, and his labour is measured by hours rather than by work. His mind, like his body, is confined within a narrow compass; and he is taught to consider punctuality as the highest of virtues, and the regularity of a machine as the perfection of human conduct. Yet there are moments when the spirit of man will assert its privilege, and look beyond the narrow limits of a counting-house. In such moments, I have sometimes fancied that I heard the voice of nature calling me to a freer life, and have contrasted the dull uniformity of my days with the varied and cheerful labour of those who cultivate the earth, and gather the fruits of the seasons with their own hands.
+
+### The Gettysburg Address
+@adv
+Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this.
+But, in a larger sense, we can not dedicate--we can not consecrate--we can not hallow--this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced. It is rather for us to be here dedicated to the great task remaining before us--that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion--that we here highly resolve that these dead shall not have died in vain--that this nation, under God, shall have a new birth of freedom--and that government of the people, by the people, for the people, shall not perish from the earth.
+
+### Sonnet 18
+@adv
+Shall I compare thee to a summer's day? Thou art more lovely and more temperate: Rough winds do shake the darling buds of May, And summer's lease hath all too short a date: Sometime too hot the eye of heaven shines, And often is his gold complexion dimm'd; And every fair from fair sometime declines, By chance, or nature's changing course, untrimm'd; But thy eternal summer shall not fade, Nor lose possession of that fair thou ow'st; Nor shall Death brag thou wander'st in his shade, When in eternal lines to time thou grow'st: So long as men can breathe or eyes can see, So long lives this, and this gives life to thee.
+
+### Ozymandias
+@adv
+I met a traveller from an antique land, Who said: "Two vast and trunkless legs of stone Stand in the desert... Near them, on the sand, Half sunk, a shattered visage lies, whose frown, And wrinkled lip, and sneer of cold command, Tell that its sculptor well those passions read Which yet survive, stamped on these lifeless things, The hand that mocked them, and the heart that fed: And on the pedestal these words appear: "My name is Ozymandias, King of Kings: Look on my works, ye Mighty, and despair!" Nothing beside remains. Round the decay Of that colossal wreck, boundless and bare, The lone and level sands stretch far away."
+
+### A Tale of Two Cities
+@mid
+It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to Heaven, we were all going direct the other way--in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.
+There were a king with a large jaw and a queen with a plain face, on the throne of England; there were a king with a large jaw and a queen with a fair face, on the throne of France. In both countries it was clearer than crystal to the lords of the State preserves of loaves and fishes, that things in general were settled for ever. It was the year of Our Lord one thousand seven hundred and seventy-five.
+
+### The American Crisis
+@mid
+THESE are the times that try men's souls. The summer soldier and the sunshine patriot will, in this crisis, shrink from the service of their country; but he that stands by it now, deserves the love and thanks of man and woman. Tyranny, like hell, is not easily conquered; yet we have this consolation with us, that the harder the conflict, the more glorious the triumph. What we obtain too cheap, we esteem too lightly: it is dearness only that gives every thing its value. Heaven knows how to put a proper price upon its goods; and it would be strange indeed if so celestial an article as FREEDOM should not be highly rated. Britain, with an army to enforce her tyranny, has declared that she has a right (not only to TAX) but "to BIND us in ALL CASES WHATSOEVER," and if being bound in that manner, is not slavery, then is there not such a thing as slavery upon earth. Even the expression is impious; for so unlimited a power can belong only to God.
+
+### Because I Could Not Stop for Death
+@adv
+Because I could not stop for Death--He kindly stopped for me--The Carriage held but just Ourselves--And Immortality.
+We slowly drove--He knew no haste And I had put away My labor and my leisure too, For His Civility--
+We passed the School, where Children strove At Recess--in the Ring--We passed the Fields of Gazing Grain--We passed the Setting Sun--
+Or rather--He passed us--The Dews drew quivering and chill--For only Gossamer, my Gown--My Tippet--only Tulle--
+We paused before a House that seemed A Swelling of the Ground--The Roof was scarcely visible--The Cornice--in the Ground--
+Since then--'tis Centuries--and yet Feels shorter than the Day I first surmised the Horses' Heads Were toward Eternity--

@@ -6,7 +6,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:5174'
   const report = []
   const check = (n, ok, extra) => report.push(`${ok ? 'PASS' : 'FAIL'} | ${n}${extra ? ' | ' + extra : ''}`)
 
-  // 1) 入口：hover 整块标题 + 标题切换 + 中文标签
+  // 1) 入口：模式切换按钮（2026-10-21 改版：start/pause 形式，替代原 hover 浮层）
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
@@ -17,43 +17,26 @@ const BASE = process.env.BASE || 'http://127.0.0.1:5174'
   })
   await page.goto(BASE + '/', { waitUntil: 'load' })
   await page.waitForTimeout(1200)
-  const title0 = await page.textContent('header span span')
+  const title0 = await page.textContent('header a span')
   check('默认标题 = Qwerty Learner', title0.trim() === 'Qwerty Learner', title0)
-  const block = page.locator('header > div > div').first()
-  const boxBefore = await page.evaluate(() => {
-    const h = document.querySelector('header')
-    const t = document.querySelector('header h1, header span span')
-    return { header: h.getBoundingClientRect().height, title: t.getBoundingClientRect().left + ',' + t.getBoundingClientRect().top }
-  })
-  await block.hover()
-  await page.waitForTimeout(400)
-  const menuCount = await page.locator('[role="menu"]').count()
-  check('hover 展开浮层', menuCount > 0)
-  const bg = await block.evaluate((el) => getComputedStyle(el).backgroundColor)
-  check('整块有背景色', bg !== 'rgba(0, 0, 0, 0)', bg)
-  const boxAfter = await page.evaluate(() => {
-    const h = document.querySelector('header')
-    const t = document.querySelector('header h1, header span span')
-    return { header: h.getBoundingClientRect().height, title: t.getBoundingClientRect().left + ',' + t.getBoundingClientRect().top }
-  })
-  check('页头高度不变', Math.abs(boxBefore.header - boxAfter.header) <= 1, `${boxBefore.header} vs ${boxAfter.header}`)
-  check('标题位置不变', boxBefore.title === boxAfter.title, `${boxBefore.title} vs ${boxAfter.title}`)
-  const label = await page.textContent('[data-testid="mode-label"]')
-  check('hover 时出现中文标签', label && label.trim() === '学习模式', label)
-
-  // hover 到 Typing Learner 项 → 标题切换
-  const items = page.locator('[role="menuitem"]')
-  await items.nth(1).hover()
-  await page.waitForTimeout(250)
-  const titleHover = await page.textContent('header span span')
-  const labelHover = await page.textContent('[data-testid="mode-label"]')
-  check('hover Typing 项 → 标题切换', titleHover.trim() === 'Typing Learner', titleHover)
-  check('标签切换为打字模式', labelHover.trim() === '打字模式', labelHover)
+  const toggle = page.locator('[data-testid="mode-toggle"]')
+  const label0 = (await toggle.innerText()) || ''
+  check('学习态按钮标签 = 打字模式', label0.trim() === '打字模式', label0)
+  const bg0 = await toggle.evaluate((el) => getComputedStyle(el).backgroundColor)
+  check('学习态按钮 indigo-500（start/pause 形式）', bg0 === 'rgb(99, 102, 241)', bg0)
+  const href = await page.getAttribute('header a', 'href')
+  check('标题仍为官网链接', href === 'https://qwerty.kaiyi.cool/', href)
 
   // 点击进入 typing
-  await items.nth(1).click()
+  await toggle.click()
   await page.waitForTimeout(1500)
   check('进入 /typing', page.url().endsWith('/typing'), page.url())
+  const label1 = (await page.locator('[data-testid="mode-toggle"]').innerText()) || ''
+  check('打字态按钮标签 = 学习模式', label1.trim() === '学习模式', label1)
+  await page.mouse.move(0, 0) // 移开鼠标，避免 hover:bg-gray-500 干扰状态色断言
+  await page.waitForTimeout(200)
+  const bg1 = await page.locator('[data-testid="mode-toggle"]').evaluate((el) => getComputedStyle(el).backgroundColor)
+  check('打字态按钮 gray-400', bg1 === 'rgb(156, 163, 175)', bg1)
 
   // 2) 键盘溢出检测（三档密度不易触发，先测当前）
   const overflow = await page.evaluate(() => {

@@ -8,12 +8,16 @@ const { chromium } = require('playwright')
   const check = (name, ok, extra) => report.push(`${ok ? 'PASS' : 'FAIL'} | ${name}${extra ? ' | ' + extra : ''}`)
 
   // ── 小鹤双拼模式（localStorage 预置）──
+  // 注：一命模式（spec-20261020-v1 / 02）对字/词/成语/短句默认开启，按错键走
+  // 「整章重来」分支（TypingPanel 提前 return，不渲染抖动/红框）。
+  // 本探针测经典错键反馈（ACC-06-25 抖动 + 红框），需显式关闭一命模式。
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   await page.addInitScript(() => {
     localStorage.setItem('typingScheme', JSON.stringify('flypy'))
     localStorage.setItem('typingMaterialId', JSON.stringify('zh-flypy-zi-500'))
+    localStorage.setItem('typingOneLifeOverride', JSON.stringify(false))
   })
   await page.goto('http://localhost:5199/typing', { waitUntil: 'load', timeout: 30000 })
   await page.waitForTimeout(3000)

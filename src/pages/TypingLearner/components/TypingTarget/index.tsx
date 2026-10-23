@@ -346,7 +346,7 @@ export default function TypingTarget({
         return (
           <div
             key={`g-${absoluteGroup}`}
-            className={`flex flex-col items-center py-1 ${faded ? 'opacity-35' : ''}`}
+            className={`flex flex-col items-center py-1 ${faded ? 'opacity-40' : ''}`}
             data-testid={`typing-target-group-${absoluteGroup}`}
             style={{ rowGap: 2 }}
           >
